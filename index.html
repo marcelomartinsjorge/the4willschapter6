@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kronk, the Greatest · The Four Wills</title>
+<meta name="description" content="Capítulo VI de As Quatro Vontades como livro interativo: Kronk, da festa dos dois anos à Batalha das Goelas.">
+<meta name="theme-color" content="#140f0b">
+<meta property="og:title" content="Kronk, the Greatest · The Four Wills">
+<meta property="og:image" content="assets/images/capa.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="livro.css">
+<link rel="stylesheet" href="content/cap06/tema.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦴</text></svg>">
+</head>
+<body data-zona="festa">
+
+<div id="bg"></div>
+<canvas id="nevoa" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div id="calor" aria-hidden="true"></div>
+<div id="apagar" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="tl"><span class="cap">Chapter VI</span><span id="parte"></span></div>
+  <div class="tr">
+    <button id="narizBtn" class="ic nariz" hidden aria-label="Nose"><svg viewBox="0 0 24 24"><path d="M11 3c-1 4-3 8-5 11-1 2 0 4 3 4 1 0 2-1 3-1s2 1 3 1c3 0 4-2 3-4"/><path d="M2 8c2-1 3 1 5 0M17 7c2-1 3 1 5 0"/></svg><span class="qt">0</span></button>
+    <button class="ic lang txt" aria-label="Ler em português">PT</button>
+    <button id="som" class="ic" aria-label="Som"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M16 9l6 6M22 9l-6 6"/></svg></button>
+    <button id="menuReset" class="ic" aria-label="Recomeçar o capítulo" title="Recomeçar o capítulo"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></button>
+  </div>
+</header>
+
+<main id="page">
+  <p id="rhead"></p>
+  <div id="extras"></div>
+  <article id="ptext"></article>
+  <div id="choices"></div>
+  <nav class="nav">
+    <button id="prev" class="navb">← Back</button>
+    <span id="pnum">1</span>
+    <button id="next" class="navb pri">Next</button>
+  </nav>
+</main>
+<div id="prog"></div>
+<div id="toasts"></div>
+<div id="mg"></div>
+
+<section id="cover">
+  <div class="cvin">
+    <p class="eyebrow" id="cvEye"></p>
+    <h1 id="cvTitle">Kronk</h1>
+    <p id="cvSub" class="sub"></p>
+    <p class="lede" id="cvLede"></p>
+    <div class="cvbtns"><button id="cvCont" class="cta" hidden></button><button id="cvGo" class="cta"></button></div>
+    <p class="hint" id="cvHint"></p>
+    <button class="ic lang txt cvlang" aria-label="Ler em português">PT</button>
+  </div>
+</section>
+
+<section id="codex" role="dialog" aria-modal="true">
+  <div class="cxcard">
+    <div id="cxImg"></div>
+    <div class="cxbody">
+      <p id="cxEye" class="eyebrow"></p><h2 id="cxTitle"></h2>
+      <div id="cxText"></div>
+      <div class="cxnav"><button id="cxPrev">‹</button><span id="cxPg"></span><button id="cxNext">›</button></div>
+    </div>
+    <button id="cxClose" class="ic" aria-label="Fechar">✕</button>
+  </div>
+</section>
+
+<section id="narizModal" role="dialog" aria-modal="true">
+  <div class="nzcard">
+    <p class="eyebrow" id="nzSub"></p>
+    <h2 id="nzTitle"></h2>
+    <ul id="nzLista"></ul>
+    <button id="nzClose" class="ic" aria-label="Fechar">✕</button>
+  </div>
+</section>
+
+<section id="resumo">
+  <div class="rsin">
+    <p class="eyebrow" id="rsEye"></p>
+    <h2 id="rsH"></h2>
+    <p id="rsFrase" class="rs-frase"></p>
+    <div id="rsRevela" class="rsrevela"></div>
+    <ul id="rsRel"></ul>
+    <div id="rsPerfil" class="rsperfil"></div>
+    <div id="rsPontos" class="rspontos"></div>
+    <h3 id="rsSuas"></h3>
+    <ul id="rsEsc"></ul>
+    <div class="rsbtns"><a id="rsProx" class="cta" href="#">Capítulo VII</a><button id="rsReler" class="ghost"></button></div>
+  </div>
+</section>
+
+<script src="content/cap06/chapter-config.js"></script>
+<script src="capitulo6.js"></script>
+<script src="jogos6.js"></script>
+<script src="batalha6.js"></script>
+<script src="motor6.js"></script>
+</body>
+</html>
