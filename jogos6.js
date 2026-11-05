@@ -181,13 +181,15 @@ function faro(root, c) {
         }
         const base = (f.fino ? .32 : .42) + (fome ? .15 : 0);
         const alfa = (base + f.k * .55) * (f.vis || 1);
+        if (f.cheiro && c.st.nariz && c.st.nariz.includes(f.cheiro) && f.k > .05 && !f.feito) desenhaFio(pts, '#ffd27a', (f.larg || 14) * 1.9, .18 + f.k * .25, tt, f.seed, f.fino ? 1.4 : 1);
         desenhaFio(pts, f.cor, (f.larg || 14) * (f.fino ? .6 : 1) * (1 + f.k * .4), alfa, tt, f.seed, f.fino ? 1.4 : 1);
         if (f.feito) return;
         // o dedo em cima do fio
         let em = false;
         if (toque && ptr.x >= 0) { const [d] = distPts(ptr.x, ptr.y, pts); em = d < (f.larg || 14) * .5 + (f.isca ? 46 : 30); }
         if (BOT()) em = f.alvo || (modo === 'cavar' && f.id === 'A') || (modo === 'sequencia' && !f.auto);
-        if (em) { f.k = Math.min(1, f.k + dt / (f.fino ? 1.9 : 1.4) * (BOT() ? 5 : 1)); if (f.isca) iscaSeg += dt; if (!f.visto) { f.visto = true; } }
+        const lembra = f.cheiro && c.st.nariz && c.st.nariz.includes(f.cheiro);
+        if (em) { f.k = Math.min(1, f.k + dt / (f.fino ? 1.9 : 1.4) * (lembra ? 2.2 : 1) * (BOT() ? 5 : 1)); if (f.isca) iscaSeg += dt; if (!f.visto) { f.visto = true; } }
         else f.k = Math.max(0, f.k - dt * .25);
         if (f.k >= 1) completa(f);
       });
@@ -233,31 +235,59 @@ function faro(root, c) {
 }
 
 // ================================================================== QUIETO (debaixo do couro)
+// Segurar é segurar o ar. O ar acaba. Respirar só é seguro quando a marcha está alta
+// (o barulho cobre). Quando a marcha para e a sombra fica no couro, respirar é ser ouvido.
 function quieto(root, c) {
   const { A, L } = c, cfg = L.quieto;
+  const en = c.lang === 'en';
+  // o roteiro da marcha: [tipo, segundos]
+  const ROT = cfg.roteiro || [['marcha', 3.2], ['para', 2.4], ['marcha', 2.8], ['para', 3.2], ['marcha', 2.2], ['para', 4.0], ['marcha', 1.6]];
+  const AR = cfg.ar || 4.8;
   return new Promise((resolve) => {
     fundo(root, cfg.img, 'qt-bg');
-    root.insertAdjacentHTML('beforeend', '<div class="qt-sombras"><i></i><i></i><i></i></div><div class="qt-anel"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44"/></svg></div>');
-    const anel = root.querySelector('.qt-anel circle');
+    root.insertAdjacentHTML('beforeend', '<div class="qt-sombras"><i></i><i></i><i></i></div><div class="qt-para"><svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMax meet"><path d="M50 6c-11 0-19 8-19 19v6c0 7 4 13 9 16-14 3-27 10-31 22L4 160h92l-5-91c-4-12-17-19-31-22 5-3 9-9 9-16v-6C69 14 61 6 50 6z"/></svg></div><div class="qt-anel"><svg viewBox="0 0 100 100"><circle class="fundo" cx="50" cy="50" r="44"/><circle class="ar" cx="50" cy="50" r="44"/></svg><span>' + (en ? 'air' : 'ar') + '</span></div>');
+    const anel = root.querySelector('.qt-anel circle.ar'), sombra = root.querySelector('.qt-para');
     const P = painel(root);
     c.gesto(root, 'segurar', 'quieto');
-    let t = 0, sons = 0, comecou = false, fim = false, last = performance.now(), passo = 0;
+    let ar = 1, fase = 0, tf = 0, sons = 0, comecou = false, fim = false, last = performance.now(), passo = 0, avisou = false, puxou = false;
+    const tipo = () => (ROT[fase] || ['fim'])[0];
     const S = segura(root, {
-      down: () => { if (!comecou) { comecou = true; A.sfx('marcha-abafada', .7, () => {}); } root.classList.remove('som'); },
-      up: () => { if (!comecou || fim) return; sons++; root.classList.remove('som'); void root.offsetWidth; root.classList.add('som'); A.sfx('crianca-som', .6, () => { A.tone(180, .25, 'triangle', .07, 0, .7); }); P.diz(c.lang === 'en' ? 'Kronk make sound. Drum stop.' : 'Kronk fazer som. Tambor parar.', c); },
+      down: () => { if (!comecou) { comecou = true; A.sfx('marcha-abafada', .7, () => {}); } },
+      up: () => { if (!comecou || fim) return; if (tipo() === 'para') ouvido(en ? 'Kronk breathe. Iron hear.' : 'Kronk respirar. Ferro ouvir.'); },
     });
+    const ouvido = (t) => {
+      sons++; root.classList.remove('som'); void root.offsetWidth; root.classList.add('som');
+      A.sfx('crianca-som', .6, () => { A.tone(180, .25, 'triangle', .07, 0, .7); });
+      P.diz(t, c);
+      // a sombra demora mais no couro: quem ouviu fica
+      if (tipo() === 'para') tf = Math.max(0, tf - 1.2);
+    };
     const loop = (now) => {
       if (!root.isConnected || fim) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (!window.__mgPausa && (comecou || BOT())) {
-        if (S.on || BOT()) t += dt * (BOT() ? 8 : 1);
-        anel.style.strokeDashoffset = (277 * (1 - t / cfg.dur)).toFixed(1);
-        passo -= dt; if (passo <= 0) { passo = .6 + Math.random() * .5; A.hiss(.3, 160, .8, .05, 0, 'lowpass'); }
-        if (t >= cfg.dur) {
-          fim = true; S.fim();
-          P.diz(c.lang === 'en' ? 'Iron go. Far.' : 'Ferro ir. Longe.', c);
-          setTimeout(() => resolve({ quieto: sons === 0, sons, pontos: Math.max(200, 1200 - sons * 300) }), BOT() ? 100 : 1800);
-          return;
+        const t = tipo();
+        const prende = BOT() ? (t === 'para' || ar > .7) : S.on;
+        // o ar
+        if (prende) { ar -= dt / AR; if (ar <= 0) { ar = .35; if (!BOT()) { puxou = true; ouvido(en ? 'Air finish. Kronk pull air.' : 'Ar acabar. Kronk puxar ar.'); } } }
+        else ar = Math.min(1, ar + dt / 1.1);
+        anel.style.strokeDashoffset = (277 * (1 - ar)).toFixed(1);
+        root.classList.toggle('pouco-ar', ar < .3);
+        // a marcha: passos altos; a parada: silêncio e o coração
+        tf += dt * (BOT() ? 3 : 1);
+        if (t === 'marcha') { passo -= dt; if (passo <= 0) { passo = .32 + Math.random() * .25; A.hiss(.25, 160, .8, .09, 0, 'lowpass'); } }
+        else { passo -= dt; if (passo <= 0) { passo = .9; A.tone(52, .18, 'sine', .14, 0, .8); A.tone(48, .18, 'sine', .1, .22, .8); } }
+        root.classList.toggle('parada', t === 'para');
+        if (t === 'para' && !avisou) { avisou = true; P.diz(en ? 'Iron stop. Near hide.' : 'Ferro parar. Perto do couro.', c); }
+        if (tf >= ROT[fase][1]) {
+          fase++; tf = 0;
+          if (fase >= ROT.length) {
+            fim = true; S.fim(); root.classList.remove('parada');
+            P.diz(en ? 'Iron go. Far.' : 'Ferro ir. Longe.', c);
+            setTimeout(() => resolve({ quieto: sons === 0, sons, puxou, pontos: Math.max(200, 1400 - sons * 300) }), BOT() ? 100 : 1800);
+            return;
+          }
+          if (tipo() === 'marcha' && fase > 0 && !BOT()) P.limpa();
         }
       }
       requestAnimationFrame(loop);
@@ -283,7 +313,10 @@ function tocha(root, c) {
       if (!window.__mgPausa) {
         tt += dt;
         // a luz da torre: vai e volta, devagar
-        const lx = .5 + Math.sin(tt * 1.45) * .48;
+        // a luz anda em velocidade que muda; às vezes o sentinela para e olha
+        if (!loop.pausa && Math.random() < dt * .16) loop.pausa = .7 + Math.random() * .6;
+        if (loop.pausa) loop.pausa = Math.max(0, loop.pausa - dt); else loop.ph = (loop.ph || 0) + dt * 1.45 * (1 + .4 * Math.sin(tt * .7));
+        const lx = .5 + Math.sin(loop.ph || 0) * .48;
         luz.style.left = (lx * 100) + '%';
         const kx = .06 + prog * .84; kr.style.left = (kx * 100) + '%';
         const parado = S.on || (BOT() && Math.abs(lx - kx) < .2);
@@ -345,23 +378,35 @@ function olhar(root, c) {
 }
 
 // ================================================================== TREINO (o pau da Hessa)
+// O olho vê o pau subir. O nariz sente antes: o suor da Hessa muda um instante antes do golpe.
+// Duas vezes ela finge: ergue o pau sem o cheiro. Quem bate no que vê, apanha; quem bate no que cheira, acerta.
 function treino(root, c) {
   const { A, L, tr } = c, cfg = L.treino;
+  const en = c.lang === 'en';
+  const ROT = cfg.roteiro || ['real', 'real', 'finta', 'real', 'finta', 'real'];
+  const reais = ROT.length;
   return new Promise((resolve) => {
-    root.insertAdjacentHTML('beforeend', `<div class="tr-img guarda" style="background-image:url('${cfg.guarda}')"></div><div class="tr-img ergue" style="background-image:url('${cfg.ergue}')"></div><div class="j6-veu leve"></div><ol class="tr-cont">${'<li></li>'.repeat(5)}</ol><div class="tr-luz"></div>`);
+    root.insertAdjacentHTML('beforeend', `<div class="tr-img guarda" style="background-image:url('${cfg.guarda}')"></div><div class="tr-img ergue" style="background-image:url('${cfg.ergue}')"></div><div class="tr-img bate" style="background-image:url('${cfg.bate || cfg.guarda}')"></div><div class="tr-cheiro"><svg viewBox="0 0 100 200" preserveAspectRatio="none"><path class="f0" d="M30 200 C 10 160, 50 130, 30 95 S 10 40, 35 5"/><path class="f1" d="M50 200 C 30 160, 70 130, 50 95 S 30 40, 55 5"/><path class="f2" d="M70 200 C 50 160, 90 130, 70 95 S 50 40, 75 5"/></svg></div><div class="j6-veu leve"></div><ol class="tr-cont">${'<li></li>'.repeat(reais)}</ol><div class="tr-luz"></div>`);
     const P = painel(root), cont = root.querySelectorAll('.tr-cont li');
     c.gesto(root, 'tocar', 'treino');
-    let fase = 'guarda', t = 0, dur = 1.2, n = 0, acertos = 0, fim = false, last = performance.now();
-    const set = (f, d) => { fase = f; t = 0; dur = d; root.classList.toggle('aberta', f === 'aberta'); };
+    let fase = 'guarda', t = 0, dur = 1.2, k = 0, n = 0, acertos = 0, enganado = 0, fim = false, last = performance.now(), ensinou = false;
+    const set = (f, d) => { fase = f; t = 0; dur = d; root.classList.toggle('aberta', f === 'aberta' || f === 'finge'); root.classList.toggle('cheira', f === 'cheiro' || f === 'aberta'); root.classList.toggle('bateu-guarda', f === 'bateu'); };
     const bastao = () => A.sfx('bastao', .7, () => { A.tone(420, .07, 'square', .06); A.hiss(.08, 2000, 2, .1); });
-    const resolveTroca = (ok) => {
-      bastao();
-      if (ok) { acertos++; P.diz(cfg.acerta, c); cont[n].className = 'ok'; }
-      else { P.diz(cfg.apanha, c); cont[n].className = 'nao'; root.classList.remove('luzinha'); void root.offsetWidth; root.classList.add('luzinha'); }
-      n++; set('pausa', 1.1);
+    const apanha = (txt) => { bastao(); P.diz(txt, c); root.classList.remove('luzinha'); void root.offsetWidth; root.classList.add('luzinha'); };
+    const proxima = () => { k++; if (k >= ROT.length) { fim = true; removeEventListener('keydown', kd); P.diz(acertos >= 4 ? cfg.fimBom : cfg.fim, c); setTimeout(() => resolve({ acertos, enganado }), BOT() ? 50 : 1500); return; } set('guarda', .9 + Math.random() * 1.1); };
+    const marca = (ok) => { if (cont[n]) cont[n].className = ok ? 'ok' : 'nao'; n++; };
+    const toque = () => {
+      if (window.__mgPausa || fim) return;
+      if (fase === 'cheiro' || fase === 'aberta') {
+        // acertou; no cheiro, antes do pau subir, melhor ainda
+        bastao(); acertos++; marca(true);
+        P.diz(fase === 'cheiro' ? cfg.acertaCheiro : cfg.acerta, c); set('pausa', 1.1);
+        if (n === 2 && !ensinou) { ensinou = true; setTimeout(() => c.cheiro('hessa-brava'), 500); }
+      } else if (fase === 'finge') { enganado++; marca(false); set('bateu', .9); apanha(cfg.finta); }
+      else if (fase === 'guarda') { marca(false); set('bateu', .9); apanha(cfg.apanha); }
     };
-    root.addEventListener('pointerdown', () => { if (window.__mgPausa || fim) return; if (fase === 'aberta') resolveTroca(true); else if (fase === 'guarda') resolveTroca(false); });
-    const kd = (e) => { if ((e.code === 'Space' || e.key === 'j' || e.key === 'J') && !e.repeat) { if (fase === 'aberta') resolveTroca(true); else if (fase === 'guarda' && !window.__mgPausa) resolveTroca(false); } };
+    root.addEventListener('pointerdown', toque);
+    const kd = (e) => { if ((e.code === 'Space' || e.key === 'j' || e.key === 'J') && !e.repeat) { e.preventDefault(); toque(); } };
     addEventListener('keydown', kd);
     set('guarda', 1.6);
     const loop = (now) => {
@@ -369,14 +414,14 @@ function treino(root, c) {
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (!window.__mgPausa) {
         t += dt;
-        if (BOT() && fase === 'aberta') resolveTroca(true);
+        if (BOT() && fase === 'cheiro') toque();
         if (t >= dur) {
-          if (fase === 'guarda') set('aberta', .62);
-          else if (fase === 'aberta') resolveTroca(false);   // ela bate primeiro
-          else if (fase === 'pausa') {
-            if (n >= 5) { fim = true; removeEventListener('keydown', kd); setTimeout(() => resolve({ acertos }), BOT() ? 50 : 900); return; }
-            set('guarda', .9 + Math.random() * 1.1);
-          }
+          if (fase === 'guarda') { if (ROT[k] === 'finta') set('finge', .75); else set('cheiro', .42); }
+          else if (fase === 'cheiro') set('aberta', .5);
+          else if (fase === 'aberta') { apanha(cfg.apanha); marca(false); set('pausa', 1.1); }   // ela bate primeiro
+          else if (fase === 'finge') { P.diz(cfg.fintaVista, c); set('cheiro', .42); }   // não caiu: agora vem o de verdade
+          else if (fase === 'bateu') set('pausa', .5);
+          else if (fase === 'pausa') proxima();
         }
       }
       requestAnimationFrame(loop);

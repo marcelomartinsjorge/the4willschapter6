@@ -90,9 +90,56 @@ Os campos da §10.2 do roteiro (velho, afetos, acredita, respostas, laje, partil
 ### Um defeito do Cap. V, corrigido aqui
 No motor do Cap. V, quem fecha o intertítulo com um clique fica com a tecla presa: dali em diante, →, espaço e Enter são engolidos e não fazem nada. No Cap. VI isso travava o andar da batalha. A correção são duas linhas no `livro.js` do Cap. V; posso aplicar lá também.
 
+### Versão 1.1 (mídias)
+A lista de mídias passou a trazer a idade do Kronk em todo prompt (§1.0), e a imagem do comer virou oito (`comer-02` … `comer-18-gup`), uma por idade. O código já aponta para os novos nomes.
+
+## Versão 2 (05/11/2026): as mídias entraram, os jogos foram revistos
+
+### Mídias
+- Todas as imagens, vídeos, sons e falas que você mandou estão no lugar, com os nomes do `MIDIAS_CAP6.md`. As imagens foram reduzidas para 1920 px e os vídeos de fundo comprimidos para 1280 px, sem som. Os pôsteres saem do 1º quadro.
+- **Os sprites saíram dos 31 vídeos do Flow.** O processo:
+  - recortei o verde, com o limite calculado por clipe (o fundo dos clipes do Simon e do escudeiro é mais acinzentado);
+  - tirei os objetos que voam e batem no personagem, guardando só o corpo e o que ele segura; nas mortes também ficam a arma e o escudo que caem;
+  - escolhi dos 6 s os quadros que emendam com os outros clipes;
+  - acelerei os golpes (o golpe rápido do Kronk dura 0,6 s);
+  - virei soldado e escudeiro para a direita e pus todos na mesma escala por personagem, com os laços de andar e de guarda achados automaticamente.
+- **A ponta da arma cortada:** cada golpe agora deixa um arco de luz (quente no Kronk, frio no inimigo) que cobre a ponta no instante do golpe.
+- **A estocada do escudeiro** (o clipe E3 não veio) foi montada com os quadros de espada estendida do E5, com o corpo avançando 70 px no meio do golpe.
+- **Imagens com emenda:** em `k8-agua-boa` e `k8-ritual`, a direita escurece até a emenda sumir. Ela fica debaixo do painel de texto.
+- **Máscaras da fome** feitas para `k8-poco`, `k8-caca`, `k8-ritual`, `k8-agua-boa` e `k8-mao-hessa`: só a água e a carne ficam com cor.
+- **Rostos** (das suas imagens extras): Hessa (velha e jovem), Ikk, Dorgh, Tukk, Rruk e Gup aparecem:
+  - nos avisos "vai lembrar disso";
+  - nos cartões do nariz;
+  - na tela final.
+- **Os cartões das idades** de 2, 7 e 11 secas usam o Kronk daquela idade (as suas imagens extras).
+- `batalha-longe-loop`: mais baixo e abafado (filtro de distância e eco), e o volume da zona caiu de 0,5 para 0,3.
+
+### Texto ajustado às imagens
+- **k5e (13 secas):** a imagem mostra riscos no ombro, e aos 16 o Dorgh diz "Kronk num ter corte nenhum". Entrou uma linha: "No ombro de Kronk, risco de unha. Unha dos que segurar. Corte de briga, nenhum." A marca vem das mãos que o seguraram no morro.
+- **Codex "O posto das Goelas":** dizia "não tem muralha", mas as imagens mostram muro de pedra perto do poço e cerca de estacas. Ficou: "uma cerca de estacas afiadas; em volta do poço mais fundo, um trecho de muro de pedra velha que os próprios Grakh tinham erguido gerações antes".
+- **k7d:** quando o Kronk responde "KRONK NUM SABER" e o velho cospe, o fundo troca para a sua imagem extra do velho apontando, com o cuspe na areia (`k7-velho-cospe`). Só quando o velho tem os dois braços.
+- **O posto (k8l a k8n):** o vídeo do Simon com o rapaz é o certo. Ele entra fora de foco na aproximação e na tocha, um pouco menos no faro, e fica nítido no k8n, quando o nariz acha o homem (é a revelação). A imagem `k8-pao` vira o pôster.
+- **O recuo (k8v):** o vídeo mostra o Dorgh vivo. Na rota em que ele morre, o fundo passa a ser a tela 3 da batalha (o pátio do poço com os corpos).
+- **k8i:** usa a sua imagem extra do Kronk deitado com a mão aberta na areia ("Mão achar areia").
+
+### Os jogos (ver `AUDITORIA_JOGOS_CAP6.md`)
+- **Quieto:** é sobre o ar. Respirar só com a marcha alta; quando a sombra para no couro, segurar.
+- **Treino:** o cheiro vem antes do pau e há duas fintas. A imagem extra do Kronk batendo na guarda fechada aparece quando ele cai na finta.
+- **Faro:**
+  - no F4, as cinco crias têm o mesmo fio;
+  - um cheiro que o nariz já guardou fica forte mais rápido e brilha em ouro.
+- **Tocha:** a luz muda de velocidade e às vezes para.
+- **Batalha:**
+  - o suor frio antes de cada golpe;
+  - a esquiva no último instante deixa o mundo lento;
+  - o arco do golpe;
+  - o Simon entra com o rangido da roda;
+  - o golpe final para o mundo;
+  - ao cair, "Ninguém segurar Kronk. Kronk levantar."
+
+### Testado
+As duas rotas do começo ao fim e a batalha inteira, jogada pelo robô (10 mortos, nenhuma queda), sem nenhum erro de script. É teste automático, sem gente.
+
 ## O que falta
-- As mídias (`MIDIAS_CAP6.md`).
-- Os sprites novos: eu faço as folhas e ajusto os números do manifesto em `batalha6.js`.
-- As máscaras da fome, que eu faço quando as imagens dos 21 chegarem.
-- A revisão do texto pelo Prompt Mestre, antes da dublagem.
+- As mídias que não vieram: ver `PENDENCIAS_MIDIAS_CAP6.md`.
 - O link para o Capítulo VII no fim.

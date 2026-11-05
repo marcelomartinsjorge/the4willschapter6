@@ -72,22 +72,22 @@ window.LIVRO_UI = {
     verboDe: { faro: 'faro', quieto: 'quieto', tocha: 'quieto', olhar: 'olhar', treino: 'forca', carne: 'forca', seguro: 'forca', batalha: 'guerra' },
     dica: {
       faro: 'Os cheiros entram pela borda da tela. Passe e segure o dedo em cima de um fio: quanto mais o dedo fica, mais forte ele fica, até virar palavra. Soltar deixa o fio ir.',
-      quieto: 'Segure para ficar quieto. Soltar faz barulho.',
+      quieto: 'Segurar é segurar o ar, e o anel mostra quanto ar ainda tem. Respire (solte) quando a marcha estiver alta: o barulho cobre. Quando a marcha parar e a sombra ficar no couro, não solte.',
       tocha: 'Segure quando a luz vier. Solte quando passar: soltar é andar.',
       olhar: 'Toque em cada coisa debaixo da pedra.',
-      treino: 'A Hessa fecha a guarda e abre. Toque quando ela erguer o pau. Cinco vezes.',
+      treino: 'A Hessa fecha a guarda e abre. Toque quando ela abrir. Antes do pau subir, o cheiro dela muda: uma fumaça quente sobe dela. O olho pode enganar. Seis trocas.',
       carne: 'Arraste a carne: para a boca, para a mão da Ikk, ou para o lado de rasgar.',
       seguro: 'Arraste para cima, em direção à batalha. Três vezes.',
-      batalha: 'Andar: A/D ou setas. Golpe: toque em J ou clique. Golpe pesado: segure J ou o clique e solte. Esquivar: espaço ou clique direito. No celular, os quatro botões da tela.',
+      batalha: 'Andar: A/D ou setas. Golpe: toque em J ou clique. Golpe pesado: segure J ou o clique e solte; ele quebra guarda e escudo. Esquivar: espaço ou clique direito. Antes de cada golpe, o suor frio sobe de quem vai bater: bata primeiro ou esquive. Esquivar no último instante deixa o mundo lento. No celular, os quatro botões da tela.',
     },
-    gesto: { faro: 'Siga o cheiro', quieto: 'Segure para ficar quieto', tocha: 'Segure quando a luz vier', olhar: 'Toque no que brilha', treino: 'Bata quando ela abrir', carne: 'Arraste a carne', seguro: 'Puxe', batalha: 'Ninguém te segura.' },
-    gestoSub: { faro: 'passe o dedo pelo fio e segure', quieto: 'soltar faz barulho', tocha: 'solte quando a luz passar', olhar: 'cada coisa tem um cheiro', treino: 'toque quando o pau subir', carne: 'para onde ela vai', seguro: 'arraste para cima', batalha: () => (matchMedia('(pointer: coarse)').matches ? 'andar ◀ ▶ · toque para bater · segure e solte para o pesado · esquivar' : 'andar A D · bater J ou clique · segure e solte: pesado · esquivar: espaço') },
+    gesto: { faro: 'Siga o cheiro', quieto: 'Segure o ar', tocha: 'Segure quando a luz vier', olhar: 'Toque no que brilha', treino: 'Bata quando ela abrir', carne: 'Arraste a carne', seguro: 'Puxe', batalha: 'Ninguém te segura.' },
+    gestoSub: { faro: 'passe o dedo pelo fio e segure', quieto: 'respire só com a marcha alta', tocha: 'solte quando a luz passar', olhar: 'cada coisa tem um cheiro', treino: 'o cheiro vem antes do pau', carne: 'para onde ela vai', seguro: 'arraste para cima', batalha: () => (matchMedia('(pointer: coarse)').matches ? 'andar ◀ ▶ · toque para bater · segure e solte para o pesado · esquivar' : 'andar A D · bater J ou clique · segure e solte: pesado · esquivar: espaço') },
     teclaSeg: 'ou segure espaço', comecar: 'Toque para começar',
     coverEye: 'As Quatro Vontades · Livro I · Capítulo VI', coverLede: 'Nasceu no dia comido. Todo mundo esperou. Ele comeu primeiro, a vida inteira.', coverGo: 'Entrar na Pira', coverCont: 'Continuar de onde parei', coverRestart: 'Começar do início', coverHint: 'Use fones. Avance com o botão, com a seta → ou deslizando para o lado.',
     confirm: 'Recomeçar o capítulo? Suas escolhas serão apagadas.', capN: 'Capítulo VI', fimCap: 'Fim do Capítulo VI', ficou: 'O que ficou na areia', suas: 'O que você escolheu', reler: 'Reler e escolher diferente', mesmo: (p) => `${p}% dos leitores fizeram o mesmo`,
     pontos: 'Pontuação do capítulo', jornada: 'Jornada (Capítulos I a VI)', posicao: (p, n) => `${p}º de ${n} leitores`, semCap1: 'Jogue os capítulos anteriores neste navegador para somar a jornada.',
     pts: { faro: 'O faro', treino: 'O treino', quieto: 'Quieto', batalha: 'As Goelas', antes: 'Capítulos I a V' },
-    bt: { esq: '◀', dir: '▶', atacar: 'ATACAR', esquivar: 'ESQUIVAR', girar: 'Gire o celular para lutar melhor.', levantar: 'Kronk levantar.', segue: 'Toque para seguir' },
+    bt: { esq: '◀', dir: '▶', atacar: 'ATACAR', esquivar: 'ESQUIVAR', girar: 'Gire o celular para lutar melhor.', levantar: 'Ninguém segurar Kronk. Kronk levantar.', segue: 'Toque para seguir' },
   },
   en: {
     parte: 'Age', prox: 'Next', fim: 'Close the chapter', voltar: '← Back', continuar: 'Continue', oque: 'What does Kronk do?', escolheu: 'You chose:', silencio: 'say nothing', silencioR: 'Silence', momento: 'Moment of play',
@@ -98,22 +98,22 @@ window.LIVRO_UI = {
     verboDe: { faro: 'faro', quieto: 'quieto', tocha: 'quieto', olhar: 'olhar', treino: 'forca', carne: 'forca', seguro: 'forca', batalha: 'guerra' },
     dica: {
       faro: 'Smells come in from the edge of the screen. Pass your finger over a thread and hold it there: the longer it stays, the stronger the thread, until it becomes a word. Let go and the thread drifts away.',
-      quieto: 'Hold to keep still. Letting go makes a sound.',
+      quieto: 'Holding is holding your breath; the ring shows how much air is left. Breathe (let go) while the march is loud: the noise covers you. When the march stops and the shadow stays on the hide, do not let go.',
       tocha: 'Hold when the light comes. Let go when it passes: letting go is walking.',
       olhar: 'Touch every thing under the stone.',
-      treino: 'Hessa closes her guard and opens it. Tap when she raises the stick. Five times.',
+      treino: 'Hessa closes her guard and opens it. Tap when she opens. Before the stick goes up, her smell changes: a warm haze rises from her. The eye can be fooled. Six exchanges.',
       carne: 'Drag the meat: to the mouth, to Ikk’s hand, or to the side to tear it.',
       seguro: 'Drag upward, toward the battle. Three times.',
-      batalha: 'Walk: A/D or arrows. Strike: tap J or click. Heavy strike: hold J or the click and release. Dodge: space or right click. On a phone, the four buttons on screen.',
+      batalha: 'Walk: A/D or arrows. Strike: tap J or click. Heavy strike: hold J or the click and release; it breaks guards and shields. Dodge: space or right click. Before every strike, cold sweat rises from whoever is about to hit: strike first or dodge. Dodging at the last instant slows the world down. On a phone, the four buttons on screen.',
     },
-    gesto: { faro: 'Follow the smell', quieto: 'Hold to keep still', tocha: 'Hold when the light comes', olhar: 'Touch what glows', treino: 'Strike when she opens', carne: 'Drag the meat', seguro: 'Pull', batalha: 'Nobody holds you back.' },
-    gestoSub: { faro: 'pass your finger over the thread and hold', quieto: 'letting go makes a sound', tocha: 'let go when the light passes', olhar: 'every thing has a smell', treino: 'tap when the stick goes up', carne: 'where it goes', seguro: 'drag upward', batalha: () => (matchMedia('(pointer: coarse)').matches ? 'walk ◀ ▶ · tap to strike · hold and release for heavy · dodge' : 'walk A D · strike J or click · hold and release: heavy · dodge: space') },
+    gesto: { faro: 'Follow the smell', quieto: 'Hold your breath', tocha: 'Hold when the light comes', olhar: 'Touch what glows', treino: 'Strike when she opens', carne: 'Drag the meat', seguro: 'Pull', batalha: 'Nobody holds you back.' },
+    gestoSub: { faro: 'pass your finger over the thread and hold', quieto: 'breathe only while the march is loud', tocha: 'let go when the light passes', olhar: 'every thing has a smell', treino: 'the smell comes before the stick', carne: 'where it goes', seguro: 'drag upward', batalha: () => (matchMedia('(pointer: coarse)').matches ? 'walk ◀ ▶ · tap to strike · hold and release for heavy · dodge' : 'walk A D · strike J or click · hold and release: heavy · dodge: space') },
     teclaSeg: 'or hold space', comecar: 'Tap to begin',
     coverEye: 'The Four Wills · Book I · Chapter VI', coverLede: 'He was born on the eaten day. Everyone waited. He ate first, his whole life.', coverGo: 'Walk into the Pyre', coverCont: 'Continue where I left off', coverRestart: 'Start from the beginning', coverHint: 'Wear headphones. Move on with the button, the → key, or a swipe.',
     confirm: 'Restart the chapter? Your choices will be erased.', capN: 'Chapter VI', fimCap: 'End of Chapter VI', ficou: 'What the sand kept', suas: 'What you chose', reler: 'Read again and choose differently', mesmo: (p) => `${p}% of readers did the same`,
     pontos: 'Chapter score', jornada: 'Journey (Chapters I to VI)', posicao: (p, n) => `#${p} of ${n} readers`, semCap1: 'Play the earlier chapters in this browser to add up the journey.',
     pts: { faro: 'The nose', treino: 'The training', quieto: 'Still', batalha: 'The Gullets', antes: 'Chapters I to V' },
-    bt: { esq: '◀', dir: '▶', atacar: 'STRIKE', esquivar: 'DODGE', girar: 'Turn your phone to fight better.', levantar: 'Kronk get up.', segue: 'Tap to go on' },
+    bt: { esq: '◀', dir: '▶', atacar: 'STRIKE', esquivar: 'DODGE', girar: 'Turn your phone to fight better.', levantar: 'Nobody hold Kronk. Kronk get up.', segue: 'Tap to go on' },
   },
 };
 
@@ -147,7 +147,7 @@ window.LIVRO = {
     laje: { src: 'assets/audio/laje-dia-loop.mp3', volume: .5, reserva: 'vento' },
     fogo: { src: 'assets/audio/fogo-loop.mp3', volume: .45, reserva: 'fogo' },
     vazio: { src: 'assets/audio/acampamento-vazio-loop.mp3', volume: .5, reserva: 'vento' },
-    morro: { src: 'assets/audio/batalha-longe-loop.mp3', volume: .5, reserva: 'vento' },
+    morro: { src: 'assets/audio/batalha-longe-loop.mp3', volume: .3, reserva: 'vento' },
     guerra: { src: 'assets/audio/batalha-loop.mp3', volume: .55, reserva: 'vento' },
     rangido: { src: 'assets/audio/rangido-loop.mp3', volume: .5, reserva: 'vento' },
     dunas: { src: 'assets/audio/dunas-loop.mp3', volume: .5, reserva: 'vento' },
@@ -162,13 +162,13 @@ window.LIVRO = {
     dormir: { nome: (st) => (shaaViva(st) ? T('cheiro de Shaa dormir', 'Shaa-sleep smell') : T('cheiro de Ghru dormir', 'Ghru-sleep smell')), linha: T('Cheiro igual nada. Pesado. Ficar no nariz.', 'Smell like nothing else. Heavy. Stay in nose.') },
     ferro: { nome: T('cheiro de ferro andar', 'iron-walk smell'), linha: T('Ferro e cavalo e homem. Vir do leste.', 'Iron and horse and men. Come from east.') },
     laje: { nome: T('cheiro de Laje', 'Slab smell'), linha: T('Fruta de cacto passada, seiva, graxa cinza. E homem. Homem velho.', 'Cactus fruit gone bad, tree sap, grey grease. And man. Old man.') },
-    'hessa-brava': { nome: T('cheiro de Hessa brava', 'Hessa-angry smell'), linha: T('Suor, rápido. Vir antes do pau.', 'Sweat, quick. Come before stick.') },
-    ikk: { nome: T('cheiro de Ikk', 'Ikk smell'), linha: T('Boca cheirar fruta passada. Nos pequeno. Em Kronk, não.', 'Mouth smell of fruit gone bad. On small ones. Not on Kronk.') },
+    'hessa-brava': { rosto: 'hessa-jovem', nome: T('cheiro de Hessa brava', 'Hessa-angry smell'), linha: T('Suor, rápido. Vir antes do pau.', 'Sweat, quick. Come before stick.') },
+    ikk: { rosto: 'ikk', nome: T('cheiro de Ikk', 'Ikk smell'), linha: T('Boca cheirar fruta passada. Nos pequeno. Em Kronk, não.', 'Mouth smell of fruit gone bad. On small ones. Not on Kronk.') },
     assobio: { nome: T('cheiro de Assobio', 'Whistle smell'), linha: T('Ferro, cavalo, óleo de lâmina. E uma coisa que num nascer na areia. Onde ir, Grakh cair.', 'Iron, horse, blade oil. And something that not grow in sand. Where it go, Grakh fall.') },
-    'kronk-pequeno': { nome: T('cheiro de Kronk pequeno', 'small-Kronk smell'), linha: T('Igual Kronk. Pequeno. Leite por cima.', 'Same as Kronk. Small. Milk on top.') },
+    'kronk-pequeno': { rosto: 'gup', nome: T('cheiro de Kronk pequeno', 'small-Kronk smell'), linha: T('Igual Kronk. Pequeno. Leite por cima.', 'Same as Kronk. Small. Milk on top.') },
     poco: { nome: T('cheiro de poço', 'well smell'), linha: T('Pedra molhada. Lama. Debaixo da areia.', 'Wet stone. Mud. Under sand.') },
     carcaca: { nome: T('cheiro de carne de três sol', 'three-sun-meat smell'), linha: T('Carne. Velha. Mosca.', 'Meat. Old. Flies.') },
-    'dorgh-noite': { nome: T('cheiro de Dorgh falar de noite', 'Dorgh-talk-at-night smell'), linha: T('Suor frio, quando boca dizer uma coisa.', 'Cold sweat, when mouth say one thing.') },
+    'dorgh-noite': { rosto: 'dorgh', nome: T('cheiro de Dorgh falar de noite', 'Dorgh-talk-at-night smell'), linha: T('Suor frio, quando boca dizer uma coisa.', 'Cold sweat, when mouth say one thing.') },
     'quase-assobio': { nome: T('cheiro de quase Assobio', 'almost-Whistle smell'), linha: T('Igual Assobio. Num ser Assobio.', 'Like Whistle. Not Whistle.') },
   },
 
@@ -195,7 +195,7 @@ window.LIVRO = {
     f4: { modo: 'alvo', img: IMG('k7-gup'), fios: [
       { id: 'c1', cor: '#efe3cf', de: 'esq', ate: [.22, .4], larg: 14, texto: T('Leite. Mãe.', 'Milk. Mother.') },
       { id: 'c2', cor: '#efe3cf', de: 'cima', ate: [.4, .25], larg: 14, texto: T('Leite. Mãe.', 'Milk. Mother.') },
-      { id: 'gup', cor: '#c9a06a', de: 'baixo', ate: [.55, .5], larg: 14, alvo: true, texto: T('Esse, não.', 'Not this one.') },
+      { id: 'gup', cor: '#efe3cf', de: 'baixo', ate: [.55, .5], larg: 14, alvo: true, texto: T('Esse, não. Esse cheirar Kronk.', 'Not this one. This one smell of Kronk.') },
       { id: 'c3', cor: '#efe3cf', de: 'dir', ate: [.75, .35], larg: 14, texto: T('Leite. Mãe.', 'Milk. Mother.') },
       { id: 'c4', cor: '#efe3cf', de: 'dir', ate: [.8, .62], larg: 14, texto: T('Leite. Mãe.', 'Milk. Mother.') },
     ] },
@@ -221,29 +221,34 @@ window.LIVRO = {
 
   // debaixo da Laje (k3b): os cinco pontos, na imagem do debaixo da pedra
   laje: { img: IMG('k3-laje-debaixo'), proporcao: 16 / 9, pontos: [
-    { id: 'alambique', x: 30, y: 52, w: 12, h: 18, rotulo: T('O pote grande', 'The big pot'), texto: T('Pote grande c’um nariz. Cheiro de fruta de cacto passada. Kronk lamber. Ruim. Kronk lamber mais.', 'Big pot with nose. Smell of cactus fruit gone bad. Kronk lick. Bad. Kronk lick again.') },
-    { id: 'riscos', x: 12, y: 28, w: 12, h: 18, rotulo: T('Os riscos', 'The scratches'), texto: T('Risco na pedra. Muito. Primeiro risco fundo. Último risco raso. Kronk contar na mão. Mão num dar.', 'Scratches in stone. Many. First ones deep. Last ones not deep. Kronk count on hand. Hand not enough.') },
-    { id: 'potes', x: 72, y: 60, w: 14, h: 16, rotulo: T('Os potes pequenos', 'The small pots'), texto: T('Pote pequeno, vazio. Um cheirar cinza e amargo. Mesmo cheiro de grande depois de briga.', 'Small pots, empty. One smell grey and bitter. Same smell of big ones after fight.') },
-    { id: 'couro', x: 52, y: 40, w: 12, h: 14, rotulo: T('O couro riscado', 'The scratched hide'), texto: T('Couro c’risco em fila. Num ser risco de caça. Kronk num saber o que.', 'Hide with scratches in rows. Not hunt marks. Kronk not know what.') },
-    { id: 'sombra', x: 50, y: 80, w: 22, h: 12, rotulo: T('A sombra', 'The shadow'), texto: T('Sombra do tamanho de homem deitado. Cheiro de homem ficar na pedra. Velho. Kronk deitar na sombra. Kronk grande demais pra sombra.', 'Shadow size of man lying. Smell of man stay in stone. Old. Kronk lie down in shadow. Kronk too big for shadow.') },
+    { id: 'alambique', x: 39, y: 45, w: 9, h: 18, rotulo: T('O pote grande', 'The big pot'), texto: T('Pote grande c’um nariz. Cheiro de fruta de cacto passada. Kronk lamber. Ruim. Kronk lamber mais.', 'Big pot with nose. Smell of cactus fruit gone bad. Kronk lick. Bad. Kronk lick again.') },
+    { id: 'riscos', x: 29, y: 29, w: 13, h: 15, rotulo: T('Os riscos', 'The scratches'), texto: T('Risco na pedra. Muito. Primeiro risco fundo. Último risco raso. Kronk contar na mão. Mão num dar.', 'Scratches in stone. Many. First ones deep. Last ones not deep. Kronk count on hand. Hand not enough.') },
+    { id: 'potes', x: 56, y: 63, w: 22, h: 12, rotulo: T('Os potes pequenos', 'The small pots'), texto: T('Pote pequeno, vazio. Um cheirar cinza e amargo. Mesmo cheiro de grande depois de briga.', 'Small pots, empty. One smell grey and bitter. Same smell of big ones after fight.') },
+    { id: 'couro', x: 50, y: 20, w: 14, h: 28, rotulo: T('O couro riscado', 'The scratched hide'), texto: T('Couro c’risco em fila. Num ser risco de caça. Kronk num saber o que.', 'Hide with scratches in rows. Not hunt marks. Kronk not know what.') },
+    { id: 'sombra', x: 41, y: 80, w: 25, h: 10, rotulo: T('A sombra', 'The shadow'), texto: T('Sombra do tamanho de homem deitado. Cheiro de homem ficar na pedra. Velho. Kronk deitar na sombra. Kronk grande demais pra sombra.', 'Shadow size of man lying. Smell of man stay in stone. Old. Kronk lie down in shadow. Kronk too big for shadow.') },
   ], porta: T('Sair de debaixo da pedra', 'Come out from under the stone') },
 
   // o treino (k3d): as cinco trocas
   treino: {
-    guarda: IMG('k3-hessa-guarda'), ergue: IMG('k3-hessa-ergue'),
+    guarda: IMG('k3-hessa-guarda'), ergue: IMG('k3-hessa-ergue'), bate: IMG('k3-kronk-bate-guarda'),
     apanha: T('Pau bater na cabeça de Kronk. Kronk ver luz. Kronk rir.', 'Stick hit Kronk head. Kronk see light. Kronk laugh.'),
     acerta: T('Pau bater no braço de Hessa. Hessa num parar.', 'Stick hit Hessa arm. Hessa not stop.'),
+    acertaCheiro: T('Cheiro vir. Kronk bater antes do pau. Hessa olhar Kronk.', 'Smell come. Kronk hit before stick. Hessa look at Kronk.'),
+    finta: T('Pau subir. Cheiro num vir. Hessa enganar. Pau bater em Kronk.', 'Stick go up. Smell not come. Hessa trick. Stick hit Kronk.'),
+    fintaVista: T('Pau subir. Sem cheiro. Kronk esperar.', 'Stick go up. No smell. Kronk wait.'),
+    fim: T('Hessa largar o pau.', 'Hessa drop the stick.'),
+    fimBom: T('— Nariz bom. Olho burro.', '— Nose good. Eye stupid.'),
   },
 
   // a carne (k4c)
   carne: { img: IMG('k4-carne'), boca: T('Boca', 'Mouth'), ikk: T('Mão de Ikk', 'Ikk’s hand'), rasgar: T('Rasgar', 'Tear') },
 
   // as mãos que seguram (k5c)
-  seguro: { img: (st) => IMG(umBraco(st) ? 'k5-maos-um-braco' : 'k5-maos'), fundo: IMG('k5-morro'),
+  seguro: { img: IMG('k5-maos'), fundo: IMG('k5-morro'),
     linhas: [T('Kronk ir. Mão segurar Kronk.', 'Kronk go. Hands hold Kronk.'), T('Kronk puxar. Três grande cair na areia. Três grande levantar. Segurar outra vez.', 'Kronk pull. Three big ones fall in sand. Three big ones get up. Hold again.'), T('Uma mão cheirar cinza e osso. Kronk conhecer essa mão.', 'One hand smell of ash and bone. Kronk know this hand.')] },
 
   // quieto debaixo do couro (k2b) e a tocha do posto (k8l)
-  quieto: { img: IMG('k2-couro'), dur: 11 },
+  quieto: { img: IMG('k2-couro'), ar: 4.8 },
   tocha: { img: IMG('k8-posto'), voltas: 3 },
 
   // a batalha (k8t): ver batalha6.js
@@ -254,6 +259,8 @@ window.LIVRO = {
       sai2: T('Grakh urrar longe. Menos urro.', 'Grakh roar far. Less roar.'),
       entra3: T('Corneta do Pira. Chamar de volta. Kronk num voltar.', 'Horn of Pyre. Call back. Kronk not go back.'),
       ikk: T('Ikk.', 'Ikk.'), dorgh: T('Dorgh.', 'Dorgh.'),
+      cheiro: T('Suor frio subir. Ferro ir bater.', 'Cold sweat rise. Iron go strike.'),
+      rangido: T('Rrrrec.', 'Kreeek.'),
     },
   },
 
@@ -266,7 +273,7 @@ window.LIVRO = {
       cartao: { num: T('Capítulo VI · Kronk', 'Chapter VI · Kronk'), nome: T('O Maior', 'The Greatest'), epigrafe: T('Toda fome ter um nome.', 'Every hunger has a name.'), fonte: T('dito Grakh', 'Grakh saying') } },
 
     // ===================================================== PRIMEIRA IDADE · 2 secas · "Kronk"
-    { id: 'i1', parte: T('2 secas', '2 dry seasons'), zona: 'festa', nevoa: NEVOA[1], fundo: { img: IMG('k1-festa'), dim: .6, lado: 'dir', clima: 'brasas' },
+    { id: 'i1', parte: T('2 secas', '2 dry seasons'), zona: 'festa', nevoa: NEVOA[1], fundo: { img: IMG('idade-02'), dim: .45, clima: 'brasas', foco: '60% 35%' },
       cartao: ID(1, T('Kronk', 'Kronk'), 'Primeira idade · 2 secas', 'First age · 2 dry seasons') },
 
     { id: 'k1a', zona: 'festa', nevoa: NEVOA[1], fundo: { img: IMG('k1-festa'), dim: .45, lado: 'dir', clima: 'brasas', foco: '40% 50%' },
@@ -275,7 +282,7 @@ window.LIVRO = {
       depois: [] },
 
     { id: 'k1b', zona: 'festa', nevoa: NEVOA[1] - .1, fundo: { img: IMG('k1-festa'), dim: .4, lado: 'dir', clima: 'brasas' },
-      sons: [{ fn: (A) => [0, 380, 820, 1150].forEach((ms, i) => setTimeout(() => A.sfx('canto-kronk' + (i + 1), [.6, .5, .5, .45][i]), ms)), p: 1 }],
+      sons: [{ sfx: 'complementofesta-loop', p: 0, v: .35 }, { fn: (A) => [0, 380, 820, 1150].forEach((ms, i) => setTimeout(() => A.sfx('canto-kronk' + (i + 1), [.6, .5, .5, .45][i]), ms)), p: 1 }],
       texto: [
         T('Pra cima. Kronk subir. Muita mão. Muita boca.', 'Up. Kronk go up. Many hands. Many mouths.'),
         T('KRONK. KRONK. KRONK.', 'KRONK. KRONK. KRONK.'),
@@ -294,7 +301,7 @@ window.LIVRO = {
         { t: T('Velho dormir e cheiro mudar. Kronk puxar orelha. Velho num acordar.', 'Old one sleep and smell change. Kronk pull ear. Old one not wake.'), cheiro: 'dormir' },
       ]) },
 
-    { id: 'k1d', zona: 'fogo', nevoa: NEVOA[1], fundo: { img: IMG('comer-tigela'), dim: .4, clima: 'brasas', mascara: MASK('comer-tigela') },
+    { id: 'k1d', zona: 'fogo', nevoa: NEVOA[1], fundo: { img: IMG('comer-02'), dim: .4, clima: 'brasas', mascara: MASK('comer-02') },
       texto: [T('Gordura. Quente. Barriga. Outra barriga.', 'Fat. Warm. Belly. Other belly.'), T('Mão. Dormir.', 'Hands. Sleep.')],
       comer: {} },
 
@@ -312,7 +319,7 @@ window.LIVRO = {
 
     { id: 'k2b', zona: 'tenda', nevoa: NEVOA[2], fundo: { img: IMG('k2-couro'), dim: .7, lado: 'dir' },
       texto: [T('Kronk segurar ar. Pequeno segurar ar. Couro cheirar pequeno. Pequeno cheirar suor frio.', 'Kronk hold breath. Small ones hold breath. Hide smell of small ones. Small ones smell of fear sweat.')],
-      minijogo: 'quieto', mgDica: T('Segure para ficar quieto.', 'Hold still.'), depois: [] },
+      minijogo: 'quieto', mgDica: T('Segure o ar. Respire com a marcha.', 'Hold your breath. Breathe with the march.'), depois: [] },
 
     { id: 'k2c', zona: 'fogo', nevoa: NEVOA[2], fundo: { video: VID('k2-luto'), img: IMG('k2-luto'), dim: .45, clima: 'brasas' },
       sons: [{ sfx: 'choro-grakh', p: 0, v: .55 }],
@@ -322,12 +329,12 @@ window.LIVRO = {
         T('— Maior ser pequeno ainda. Maior crescer.', '— Greatest be small still. Greatest grow.'),
       ] },
 
-    { id: 'k2d', zona: 'fogo', nevoa: NEVOA[2], fundo: { img: IMG('comer-tigela'), dim: .4, clima: 'brasas', mascara: MASK('comer-tigela') },
+    { id: 'k2d', zona: 'fogo', nevoa: NEVOA[2], fundo: { img: IMG('comer-04'), dim: .4, clima: 'brasas', mascara: MASK('comer-04') },
       texto: [T('Carne. Barriga. Outra barriga. Velho dar pra Kronk osso com mais carne.', 'Meat. Belly. Other belly. Old one give Kronk bone with most meat.')],
       comer: {} },
 
     // ===================================================== TERCEIRA IDADE · 7 secas · "A Laje"
-    { id: 'i3', parte: T('7 secas', '7 dry seasons'), zona: 'laje', nevoa: NEVOA[3], fundo: { img: IMG('k3-laje'), dim: .6, lado: 'dir', clima: 'areia' },
+    { id: 'i3', parte: T('7 secas', '7 dry seasons'), zona: 'laje', nevoa: NEVOA[3], fundo: { img: IMG('idade-07'), dim: .5, clima: 'areia', foco: '62% 30%' },
       cartao: ID(3, T('A Laje', 'The Slab'), 'Terceira idade · 7 secas', 'Third age · 7 dry seasons') },
 
     { id: 'k3a', zona: 'laje', nevoa: NEVOA[3], fundo: { img: IMG('k3-laje'), dim: .45, lado: 'dir', clima: 'areia' },
@@ -387,12 +394,12 @@ window.LIVRO = {
         { id: 'peito', gesto: true, txt: T('Bater no peito.', 'Hit chest.'), acredita: 1, af: { dorgh: 1 }, aviso: AV.hessa, resultado: [T('Hessa bater no peito de Kronk. Mais forte.', 'Hessa hit Kronk chest. Harder.')] },
       ] } },
 
-    { id: 'k3h', zona: 'fogo', nevoa: NEVOA[3], fundo: { img: IMG('comer-tigela'), dim: .4, clima: 'brasas', mascara: MASK('comer-tigela') },
+    { id: 'k3h', zona: 'fogo', nevoa: NEVOA[3], fundo: { img: IMG('comer-07'), dim: .4, clima: 'brasas', mascara: MASK('comer-07') },
       texto: [T('Meia carne. Ainda muito. Barriga. Outra barriga. Cheiro de Hessa perto.', 'Half meat. Still much. Belly. Other belly. Hessa smell near.')],
       comer: {} },
 
     // ===================================================== QUARTA IDADE · 11 secas · "A Primeira Fome"
-    { id: 'i4', parte: T('11 secas', '11 dry seasons'), zona: 'vazio', nevoa: NEVOA[4], fundo: { img: IMG('k4-magro'), dim: .6, clima: 'poeira' },
+    { id: 'i4', parte: T('11 secas', '11 dry seasons'), zona: 'vazio', nevoa: NEVOA[4], fundo: { img: IMG('idade-11'), dim: .45, lado: 'dir', clima: 'poeira', foco: '30% 35%' },
       cartao: ID(4, T('A Primeira Fome', 'The First Hunger'), 'Quarta idade · 11 secas', 'Fourth age · 11 dry seasons') },
 
     { id: 'k4a', zona: 'vazio', nevoa: NEVOA[4], fundo: { img: IMG('k4-magro'), dim: .45, clima: 'poeira' },
@@ -429,13 +436,14 @@ window.LIVRO = {
         ikk: [T('Kronk pôr carne toda na mão de Ikk. Ikk olhar carne. Olhar Kronk. Ikk correr. Grande ver.', 'Kronk put all meat in Ikk hand. Ikk look at meat. Look at Kronk. Ikk run. Big ones see.')],
       }[st.f.partilhou] || []) },
 
-    { id: 'k4c2', se: (st) => st.f.partilhou === 'ikk', zona: 'fogo', nevoa: NEVOA[4], fundo: { img: IMG('k4-velho'), dim: .45, lado: 'dir', clima: 'brasas' },
+    { id: 'k4c2', se: (st) => st.f.partilhou === 'ikk', zona: 'fogo', nevoa: NEVOA[4], fundo: (st) => ({ img: IMG(umBraco(st) ? 'k4-velho-um-braco' : 'k4-velho'), dim: .45, lado: 'dir', clima: 'brasas' }),
       texto: [
         T('Grande de mão de cinza vir. Grande empurrar outra carne na boca de Kronk. Forte.', 'Big one with ash hands come. Big one push other meat in Kronk mouth. Hard.'),
+        se(umBraco, T('Um braço só. Esse braço empurrar igual dois.', 'One arm only. That arm push like two.')),
         T('— Maior comer. Pequeno morrer, vir mais pequeno. Maior só ter um.', '— Greatest eat. Small ones die, more small ones come. Greatest only one.'),
       ] },
 
-    { id: 'k4d', zona: 'fogo', nevoa: NEVOA[4], fundo: { img: IMG('comer-tigela-noite'), dim: .45, clima: 'brasas', mascara: MASK('comer-tigela-noite') },
+    { id: 'k4d', zona: 'fogo', nevoa: NEVOA[4], fundo: { img: IMG('comer-11'), dim: .45, clima: 'brasas', mascara: MASK('comer-11') },
       texto: [
         T('Barriga. Outra barriga. Kronk deitar. Pequeno num deitar. Pequeno olhar.', 'Belly. Other belly. Kronk lie down. Small ones not lie down. Small ones look.'),
         se((st) => st.f.partilhou && st.f.partilhou !== 'boca', T('Barriga menos cheia. Kronk dormir igual.', 'Belly less full. Kronk sleep anyway.')),
@@ -463,7 +471,7 @@ window.LIVRO = {
         { t: T('— Assobio.', '— Whistle.'), cheiro: 'assobio' },
       ] },
 
-    { id: 'k5c', zona: 'morro', nevoa: NEVOA[5], fundo: (st) => ({ img: IMG(umBraco(st) ? 'k5-maos-um-braco' : 'k5-maos'), dim: .45 }),
+    { id: 'k5c', zona: 'morro', nevoa: NEVOA[5], fundo: { img: IMG('k5-maos'), dim: .45 },
       texto: [T('Kronk levantar.', 'Kronk get up.')],
       minijogo: 'seguro', mgDica: T('Puxe.', 'Pull.'),
       depois: [
@@ -473,7 +481,7 @@ window.LIVRO = {
       ] },
 
     { id: 'k5d', zona: 'morro', nevoa: NEVOA[5], fundo: { img: IMG('k5-volta'), dim: .45, lado: 'dir', clima: 'poeira' },
-      sons: [{ sfx: 'choro-grakh', p: 0, v: .5 }],
+      sons: [{ sfx: 'choro-grakh2', p: 0, v: .5 }],
       texto: [
         T('Pira voltar. Menos do que ir.', 'Pyre come back. Less than go.'),
         T('Um novo c’um corte na cara passar por Kronk. Sangue ainda molhado. Parar.', 'One young one with cut on face walk past Kronk. Blood still wet. He stop.'),
@@ -486,8 +494,12 @@ window.LIVRO = {
         { id: 'bracos', gesto: true, txt: T('Mostrar os braço marcado.', 'Show the hands that held.'), aviso: AV.dorgh, resultado: [T('Dorgh olhar as marca de dedo nos braço de Kronk. Dorgh ir embora. Num dizer nada.', 'Dorgh look at finger marks on Kronk arms. Dorgh go. Not say nothing.')] },
       ] } },
 
-    { id: 'k5e', zona: 'fogo', nevoa: NEVOA[5], fundo: { img: IMG('comer-tigela'), dim: .45, clima: 'brasas', mascara: MASK('comer-tigela') },
-      texto: [T('Carne dos que num voltar. Grakh num jogar carne fora. Barriga. Outra barriga. Dormir.', 'Meat of the ones who not come back. Grakh not waste meat. Belly. Other belly. Sleep.')],
+    { id: 'k5e', zona: 'fogo', nevoa: NEVOA[5], fundo: { img: IMG('comer-13'), dim: .45, clima: 'brasas', mascara: MASK('comer-13') },
+      texto: [
+        T('Carne dos que num voltar. Grakh num jogar carne fora. Barriga. Outra barriga.', 'Meat of the ones who not come back. Grakh not waste meat. Belly. Other belly.'),
+        T('No ombro de Kronk, risco de unha. Unha dos que segurar. Corte de briga, nenhum.', 'On Kronk shoulder, scratch of nails. Nails of the ones who hold. Cut of fight, none.'),
+        T('Dormir.', 'Sleep.'),
+      ],
       comer: {} },
 
     // ===================================================== SEXTA IDADE · 16 secas · "As Goelas"
@@ -531,7 +543,7 @@ window.LIVRO = {
         { id: 'nao-estar', fala: true, txt: T('KRONK NUM ESTAR LÁ.', 'KRONK NOT BE THERE.'), af: { hessa: 1 }, aviso: AV.hessa, resultado: [T('A verdade ficar no meio do fogo. Ninguém responder. Hessa olhar Kronk.', 'The truth stay in the middle of the fire. Nobody answer. Hessa look at Kronk.')] },
       ] } },
 
-    { id: 'k6e', zona: 'rangido', nevoa: NEVOA[6] + .05, fundo: { img: IMG('comer-tigela-olhos'), dim: .45, clima: 'brasas', mascara: MASK('comer-tigela-olhos') },
+    { id: 'k6e', zona: 'rangido', nevoa: NEVOA[6] + .05, fundo: { img: IMG('comer-16'), dim: .45, clima: 'brasas', mascara: MASK('comer-16') },
       texto: [
         T('Grande dar carne pra Kronk. Ainda. Menos que antes. Ainda mais que todo mundo.', 'Big ones give Kronk meat. Still. Less than before. Still more than all.'),
         T('Barriga. Outra barriga. Kronk deitar.', 'Belly. Other belly. Kronk lie down.'),
@@ -583,11 +595,11 @@ window.LIVRO = {
       ],
       escolha: { id: 'p18', pergunta: T('Responder a {VELHO}', 'Answer {VELHO}'), opcoes: [
         { id: 'kronk', fala: true, txt: T('KRONK.', 'KRONK.'), acredita: 1, resultado: [T('— Então mostrar.', '— Then show.')] },
-        { id: 'naosabe', fala: true, txt: T('KRONK NUM SABER.', 'KRONK NOT KNOW.'), acredita: -1, af: { velho: -1 }, aviso: AV.velho, resultado: [T('{VELHO} cuspir na areia, perto do pé de Kronk.', '{VELHO} spit on the sand, near Kronk foot.')] },
+        { id: 'naosabe', fala: true, txt: T('KRONK NUM SABER.', 'KRONK NOT KNOW.'), acredita: -1, af: { velho: -1 }, aviso: AV.velho, fundo: (st) => (umBraco(st) ? null : { img: IMG('k7-velho-cospe'), dim: .45 }), resultado: [T('{VELHO} cuspir na areia, perto do pé de Kronk.', '{VELHO} spit on the sand, near Kronk foot.')] },
         { id: 'silencio', silencio: true, resultado: [T('{VELHO} esperar. Depois ir embora.', '{VELHO} wait. Then go.')] },
       ] } },
 
-    { id: 'k7e', zona: 'fogo', nevoa: NEVOA[7], fundo: (st) => ({ img: IMG(af(st, 'gup') >= 1 ? 'comer-gup' : 'comer-tigela'), dim: .45, clima: 'brasas', mascara: MASK(af(st, 'gup') >= 1 ? 'comer-gup' : 'comer-tigela') }),
+    { id: 'k7e', zona: 'fogo', nevoa: NEVOA[7], fundo: (st) => ({ img: IMG(af(st, 'gup') >= 1 ? 'comer-18-gup' : 'comer-18'), dim: .45, clima: 'brasas', mascara: MASK(af(st, 'gup') >= 1 ? 'comer-18-gup' : 'comer-18') }),
       texto: [
         T('Carne menor. Ainda carne. Barriga. Outra barriga.', 'Meat smaller. Still meat. Belly. Other belly.'),
         se((st) => af(st, 'gup') >= 1, T('Gup dormir na barriga de Kronk. Subir quando Kronk respirar. Descer.', 'Gup sleep on Kronk belly. Go up when Kronk breathe. Go down.')),
@@ -721,14 +733,14 @@ window.LIVRO = {
         { id: 'beber', barriga: true, txt: T('BEBER.', 'DRINK.'), fome: -25, resultado: [T('Kronk beber até barriga pesar. Depois chamar os outro.', 'Kronk drink until belly heavy. Then call the others.')] },
       ] } },
 
-    { id: 'k8l', zona: 'rangido', fundo: { video: VID('k8-posto'), img: IMG('k8-posto'), dim: .45, clima: 'estrelas' },
+    { id: 'k8l', zona: 'rangido', fundo: { video: VID('k8-posto'), img: IMG('k8-posto'), dim: .55, clima: 'estrelas', filtro: 'blur(9px) saturate(.6)' },
       sons: [{ sfx: 'cavalos-vozes', p: 0, v: .4 }],
       texto: [V('D13', T('Noite. Kronk ir pro Rangido. Sozinho. Barriga rente na areia.', 'Night. Kronk go to the Creak. Alone. Belly low to sand.'))],
       minijogo: 'tocha', mgDica: T('Segure quando a luz vier. Solte quando passar.', 'Hold when the light comes. Let go when it passes.'),
       aoTerminar: (st, r) => { st.f.visto = r.visto; },
       depois: (st) => [(st.f.visto || 0) === 0 ? T('Ninguém ver Kronk.', 'Nobody see Kronk.') : (st.f.visto || 0) === 1 ? T('Um ferro olhar. Ferro num ver nada.', 'One iron look. Iron see nothing.') : T('Ferro olhar muito. Ferro acordar outro ferro.', 'Iron look many times. Iron wake other iron.')] },
 
-    { id: 'k8m', zona: 'rangido', fundo: { video: VID('k8-posto'), img: IMG('k8-posto'), dim: .5, clima: 'estrelas' },
+    { id: 'k8m', zona: 'rangido', fundo: { video: VID('k8-posto'), img: IMG('k8-posto'), dim: .5, clima: 'estrelas', filtro: 'blur(5px) saturate(.75)' },
       texto: [T('Muito cheiro. Perto.', 'Many smells. Close.')],
       minijogo: 'faro', jogoId: 'f7',
       depois: [
@@ -736,7 +748,7 @@ window.LIVRO = {
         { t: T('Num ser Assobio. Quase Assobio.', 'Not Whistle. Almost Whistle.'), voz: 'D15', cheiro: 'quase-assobio' },
       ] },
 
-    { id: 'k8n', zona: 'rangido', fundo: { img: IMG('k8-pao'), dim: .45, mascara: MASK('k8-pao') },
+    { id: 'k8n', zona: 'rangido', fundo: { video: VID('k8-posto'), img: IMG('k8-pao'), dim: .4 },
       sons: [{ sfx: 'rangido-roda', p: 6, v: .6 }],
       texto: [
         V('D16', T('Homem do cheiro de quase Assobio sentar c’um ferro novo. Partir pão. Dar metade.', 'Man with almost-Whistle smell sit with young iron. Break bread. Give half.')),
@@ -863,7 +875,7 @@ window.LIVRO = {
       ] } },
 
     { id: 'k8v', zona: 'deserto', fundo: { video: VID('k8-recuo'), img: IMG('k8-recuo'), dim: .45, clima: 'poeira' },
-      sons: [{ sfx: 'choro-grakh', p: 2, v: .45 }],
+      sons: [{ sfx: 'choro-grakh2', p: 2, v: .45 }],
       texto: [
         T('Corneta do Pira chamar de volta. Grakh correr. Água ficar c’o ferro.', 'Horn of Pyre call back. Grakh run. Water stay with iron.'),
         T('Muito Grakh num voltar.', 'Many Grakh not come back.'),

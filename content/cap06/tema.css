@@ -24,7 +24,7 @@ body.lado-dir .bgl::after { background: linear-gradient(-90deg, rgba(18,12,8,cal
 .toast { border-left-color: var(--accent); background: rgba(20,14,9,.88); }
 
 /* ---------------------------------------------------------------- A FOME (aos 21): a cor some, menos na comida */
-.bgl .img:not(.cor), .bgl video { filter: saturate(calc(1 - var(--fome) * .92)) contrast(calc(1 + var(--fome) * .1)); transition: filter 2.5s ease; }
+.bgl .img:not(.cor), .bgl video { filter: var(--filtro,) saturate(calc(1 - var(--fome) * .92)) contrast(calc(1 + var(--fome) * .1)); transition: filter 2.5s ease; }
 .bgl .cor { opacity: calc(var(--fome) * 1); -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: var(--foco, 50% 40%); mask-position: var(--foco, 50% 40%); pointer-events: none; transition: opacity 2.5s ease; }
 body.faminto::after { content: ''; position: fixed; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(30,12,4,.45) 100%); }
 body.ronca #bg { animation: ronca .9s ease-out; }
@@ -282,3 +282,63 @@ body.mg-fome #mg .j6-bg { filter: saturate(calc(1 - var(--fome) * .9)); }
 
 /* os parágrafos que só aparecem com o gesto (comer, olhar) */
 #ptext p.oculto { display: none; }
+
+/* ---------- v2: o fundo fora de foco (o posto de longe) */
+
+/* ---------- v2: os rostos (avisos, nariz, tela final) */
+.rosto { display: inline-block; flex: none; width: 46px; height: 46px; border-radius: 50%; background-size: cover; background-position: center 30%; border: 1.5px solid rgba(255,210,150,.7); box-shadow: 0 0 0 3px rgba(0,0,0,.35), 0 0 16px rgba(255,170,80,.25); filter: saturate(.85); }
+.toast.com-rosto { display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; }
+.cheiro-novo .rosto.nz { display: block; margin: 0 auto 8px; width: 64px; height: 64px; }
+#nzLista li.com-rosto { display: grid; grid-template-columns: 46px 1fr; column-gap: 14px; align-items: center; }
+#nzLista li.com-rosto .rosto { grid-row: span 2; }
+#rsRel li.com-rosto { display: flex; align-items: center; gap: 14px; }
+#rsRel li .rosto { width: 40px; height: 40px; }
+
+/* ---------- v2: quieto (o ar e a sombra que para) */
+.qt-anel { top: 18%; width: 104px; height: 104px; }
+.qt-anel circle.fundo { stroke: rgba(220,210,190,.18); stroke-dashoffset: 0; }
+.qt-anel circle.ar { stroke: rgba(190,225,240,.85); stroke-width: 4; stroke-dashoffset: 0; transition: stroke .3s; }
+.qt-anel span { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--sans); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(230,240,245,.75); }
+#mg.jg-quieto.pouco-ar .qt-anel circle.ar { stroke: #e2603e; }
+#mg.jg-quieto.pouco-ar .qt-anel { animation: arPulsa .5s ease-in-out infinite; }
+@keyframes arPulsa { 50% { transform: translateX(-50%) scale(1.08); } }
+.qt-para { position: absolute; top: 8%; bottom: 0; left: 58%; width: 22vw; opacity: 0; transition: opacity .6s, transform 2.4s ease-out; transform: translateX(-30vw); pointer-events: none;
+  background: radial-gradient(ellipse 34% 12% at 50% 14%, rgba(0,0,0,.85), transparent 70%), radial-gradient(ellipse 30% 46% at 50% 55%, rgba(0,0,0,.8), transparent 72%); filter: blur(6px); }
+#mg.jg-quieto.parada .qt-para { opacity: 1; transform: none; }
+#mg.jg-quieto.parada .qt-sombras i { animation-play-state: paused; opacity: .4; }
+#mg.jg-quieto.parada .j6-bg { filter: brightness(.32); }
+
+/* ---------- v2: treino (o cheiro antes do pau, a finta) */
+.tr-img.bate { opacity: 0; }
+#mg.jg-treino.bateu-guarda .tr-img.bate { opacity: 1; }
+#mg.jg-treino.bateu-guarda .tr-img.guarda, #mg.jg-treino.bateu-guarda .tr-img.ergue { opacity: 0; }
+.tr-cheiro { position: absolute; left: 76%; top: 34%; width: 18vw; height: 30vh; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity .12s; }
+.tr-cheiro i { position: absolute; left: 50%; bottom: 0; width: 7vw; height: 7vw; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(255,140,70,.55), rgba(255,110,50,0) 70%); filter: blur(4px); animation: trSobe .7s ease-out infinite; }
+.tr-cheiro i:nth-child(2) { animation-delay: -.23s; left: 35%; }
+.tr-cheiro i:nth-child(3) { animation-delay: -.46s; left: 65%; }
+@keyframes trSobe { from { transform: translate(-50%, 0) scale(.6); opacity: .9; } to { transform: translate(-50%, -24vh) scale(1.6); opacity: 0; } }
+#mg.jg-treino.cheira .tr-cheiro { opacity: 1; }
+/* v2 ajustes: a parada e o cheiro visíveis */
+#mg.jg-quieto.parada .j6-bg { filter: brightness(.55) contrast(1.1); }
+.qt-para { left: 74%; width: 26vw; top: 4%; background: radial-gradient(ellipse 30% 11% at 50% 13%, rgba(0,0,0,.95), transparent 72%), radial-gradient(ellipse 34% 48% at 50% 56%, rgba(0,0,0,.92), transparent 74%); filter: blur(4px); }
+#mg.jg-quieto::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(90,10,6,.55)); }
+#mg.jg-quieto.parada::after { animation: coracao .9s ease-in-out infinite; }
+@keyframes coracao { 0%, 100% { opacity: .15; } 18% { opacity: .75; } 36% { opacity: .3; } 50% { opacity: .6; } }
+.tr-cheiro { z-index: 4; mix-blend-mode: screen; width: 22vw; height: 40vh; }
+.tr-cheiro i { width: 10vw; height: 10vw; background: radial-gradient(circle, rgba(255,120,60,.85), rgba(255,90,40,0) 70%); filter: blur(3px); }
+.qt-para { background: none; filter: blur(7px); left: 76%; width: 20vw; top: 6%; bottom: 0; }
+.qt-para svg { width: 100%; height: 100%; }
+.qt-para path { fill: rgba(0,0,0,.92); }
+.tr-cheiro { mix-blend-mode: normal; left: 74%; top: 30%; width: 14vw; height: 46vh; }
+.tr-cheiro svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 6px rgba(255,90,40,.9)); }
+.tr-cheiro path { fill: none; stroke: #e0462a; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 60 260; animation: trFio .7s linear infinite; opacity: .9; }
+.tr-cheiro path.f1 { animation-delay: -.23s; stroke: #f07a3a; }
+.tr-cheiro path.f2 { animation-delay: -.46s; }
+@keyframes trFio { from { stroke-dashoffset: 320; } to { stroke-dashoffset: 0; } }
+.qt-para::before { content: ''; position: absolute; left: -40%; right: -40%; top: 10%; bottom: 10%; background: radial-gradient(ellipse at 50% 45%, rgba(255,150,70,.32), transparent 65%); }
+.qt-para svg { position: relative; }
+#mg.jg-quieto .qt-para { filter: blur(5px); }
+#mg.jg-quieto .qt-para { left: 84%; top: 12%; bottom: 22%; width: 13vw; filter: blur(9px); }
+#mg.jg-quieto.parada .qt-para { opacity: .8; }
+.tr-cheiro path { stroke-width: 3.5; stroke-dasharray: 34 280; opacity: .75; stroke: #ff6a3a; }
+.tr-cheiro svg { filter: drop-shadow(0 0 8px rgba(255,110,50,.95)) blur(.6px); }

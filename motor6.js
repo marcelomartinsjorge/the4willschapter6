@@ -139,6 +139,7 @@ function setFundo(f) {
   layer.className = 'bgl kb-' + (f.kb || 'in') + (f.tint ? ' tint-' + f.tint : '');
   layer.style.setProperty('--dim', f.dim != null ? f.dim : .5);
   layer.style.setProperty('--foco', f.foco || '50% 40%');
+  if (f.filtro) layer.style.setProperty('--filtro', f.filtro);
   if (f.video || f.clip) {
     const v = document.createElement('video'); v.src = vsrc(f.video || f.clip); v.muted = true; v.loop = !f.umaVez; v.playsInline = true; v.setAttribute('playsinline', ''); v.autoplay = true;
     v.style.objectPosition = f.foco || '50% 40%'; v.className = 'img';
@@ -263,7 +264,11 @@ function abrirCodex(id) {
 document.addEventListener('click', (e) => { const g = e.target.closest('.gloss'); if (g) { e.preventDefault(); abrirCodex(g.dataset.codex); } });
 $('#cxClose').onclick = () => $('#codex').classList.remove('show');
 
-function toast(t) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; $('#toasts').appendChild(el); A.aviso(); setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4600); }
+// o rosto de quem vai lembrar: o primeiro nome que aparece no aviso
+const ROSTOS = { Hessa: 'hessa', Ikk: 'ikk', Dorgh: 'dorgh', Gup: 'gup', Tukk: 'tukk', Rruk: 'rruk' };
+const rostoDe = (t) => { let best = null, bi = 1e9; Object.keys(ROSTOS).forEach((n) => { const i = String(t).indexOf(n); if (i >= 0 && i < bi) { bi = i; best = ROSTOS[n]; } }); return best ? 'assets/images/rostos/' + best + '.jpg' : null; };
+const rostoHTML = (src, cls = 'rosto') => (src ? `<i class="${cls}" style="background-image:url('${src}')"></i>` : '');
+function toast(t) { const el = document.createElement('div'); el.className = 'toast'; const r = rostoDe(t); if (r) { el.classList.add('com-rosto'); el.innerHTML = rostoHTML(r) + `<span>${esc(t)}</span>`; } else el.textContent = t; $('#toasts').appendChild(el); A.aviso(); setTimeout(() => el.classList.add('out'), 3800); setTimeout(() => el.remove(), 4600); }
 
 // ---------------------------------------------------------------- O NARIZ: o que o nariz guardar
 // Cada cheiro novo entra com o nome que o Kronk deu e uma linha na voz dele.
@@ -283,7 +288,8 @@ function cheiro(id, modo) {
     st.nariz.push(id); salvar(); desenhaNariz(); registrar('nariz_' + id, '1');
     A.fareja();
     const el = document.createElement('div'); el.className = 'cheiro-novo';
-    el.innerHTML = `<small>${esc(U('narizNovo'))}</small><b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span>`;
+    const rs = NARIZ[id].rosto ? 'assets/images/rostos/' + NARIZ[id].rosto + '.jpg' : null;
+    el.innerHTML = `${rostoHTML(rs, 'rosto nz')}<small>${esc(U('narizNovo'))}</small><b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span>`;
     document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('on'));
     const b = $('#narizBtn'); b && (b.classList.remove('pulsa'), void b.offsetWidth, b.classList.add('pulsa'));
     setTimeout(() => el.classList.remove('on'), 5200); setTimeout(() => el.remove(), 6000);
@@ -300,7 +306,7 @@ function cheiro(id, modo) {
 function abrirNariz() {
   const m = $('#narizModal');
   $('#nzTitle').textContent = U('narizT'); $('#nzSub').textContent = U('narizSub');
-  $('#nzLista').innerHTML = st.nariz.map((id) => `<li><b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span></li>`).join('') || `<li class="vazio">${esc(U('narizVazio'))}</li>`;
+  $('#nzLista').innerHTML = st.nariz.map((id) => `<li class="${NARIZ[id] && NARIZ[id].rosto ? 'com-rosto' : ''}">${rostoHTML(NARIZ[id] && NARIZ[id].rosto ? 'assets/images/rostos/' + NARIZ[id].rosto + '.jpg' : null)}<b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span></li>`).join('') || `<li class="vazio">${esc(U('narizVazio'))}</li>`;
   m.classList.add('show'); A.fareja();
 }
 $('#narizBtn').onclick = abrirNariz;
@@ -663,7 +669,8 @@ function aplicar(o) {
 function escolher(p, id) {
   const e = p.escolha; if (st.escolhas[e.id]) return;
   const o = e.opcoes.find((x) => x.id === id); st.escolhas[e.id] = id;
-  if (o.fundo) { (st.fundoPag = st.fundoPag || {})[p.id] = o.fundo; setFundo(o.fundo); }
+  const fo = typeof o.fundo === 'function' ? o.fundo(st) : o.fundo;
+  if (fo) { (st.fundoPag = st.fundoPag || {})[p.id] = fo; setFundo(fo); }
   limpaBarriga();
   box.querySelectorAll('.opt').forEach((b) => { b.disabled = true; b.classList.toggle('sel', b.dataset.id === id); });
   if (o.som) A.sfx(o.som, .7);
@@ -822,7 +829,7 @@ async function resumo() {
   const rv = R.revela;
   $('#rsRevela').innerHTML = !rv ? '' : `<div class="kcard"><div class="kimg" style="background-image:url('${rv.img}')"></div><div class="ktx"><p class="eyebrow">${esc(rv.olho)}</p><h3>${esc(rv.nome)}</h3><p class="ksub">${esc(rv.titulo)}</p>${[].concat(rv.texto).map((t) => `<p class="ktexto">${esc(t)}</p>`).join('')}</div></div>`;
   $('#rsRevela').classList.toggle('card', !!rv);
-  $('#rsRel').innerHTML = R.notas.map((r) => `<li>${esc(r)}</li>`).join('');
+  $('#rsRel').innerHTML = R.notas.map((r) => { const rs = rostoDe(String(r).split(':')[0]); return `<li class="${rs ? 'com-rosto' : ''}">${rostoHTML(rs)}<span>${esc(r)}</span></li>`; }).join('');
   $('#rsPerfil').innerHTML = R.nariz && R.nariz.length ? `<p class="eyebrow">${U('narizT')}</p><ul class="rs-nariz">${R.nariz.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
   const desenha = (stats) => {
     $('#rsEsc').innerHTML = R.linhas.map((l) => {

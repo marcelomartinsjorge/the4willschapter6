@@ -58,12 +58,12 @@ window.CHAPTER_CONFIG = {
       en: { title: 'The Gullets', eyebrow: 'The deepest wells of the desert', pages: [
         ['Three natural shafts in the rock of the central Dry Mouth, with water at the bottom all year round. Their depth has never been measured.'],
         ['In the last week of the dry season the hordes gather around the Gullets, and the Wandering Pyre is raised there. Redom’s campaigns against the Grakh have followed the same calendar for more than two centuries.'],
-        ['After the great defeat, Redom built a garrison over the three wells of the Gullets: tents, a watchtower, stables, and a rope winch on the deepest throat. It has no wall. It does not need one while it holds the water.'],
+        ['After the great defeat, Redom built a garrison over the three wells of the Gullets: tents, a watchtower, stables, and a rope winch on the deepest throat. Outside, a fence of sharpened stakes; around the deepest well, a stretch of old stone wall the Grakh had raised generations before. It needs nothing more while it holds the water.'],
       ] },
       pt: { title: 'As Goelas', eyebrow: 'Os poços mais fundos do deserto', pages: [
         ['Três poços naturais na rocha do centro da Boca Seca, com água no fundo o ano inteiro. A profundidade nunca foi medida.'],
         ['Na última semana da estação seca as hordas se reúnem em volta das Goelas, e a Pira Errante é erguida ali. As campanhas de Redom contra os Grakh seguem o mesmo calendário há mais de dois séculos.'],
-        ['Depois da grande derrota, Redom ergueu um posto sobre os três poços das Goelas: tendas, uma torre de vigia, estábulos e um sarilho de corda na garganta mais funda. Não tem muralha. Não precisa de uma enquanto tiver a água.'],
+        ['Depois da grande derrota, Redom ergueu um posto sobre os três poços das Goelas: tendas, uma torre de vigia, estábulos e um sarilho de corda na garganta mais funda. Por fora, uma cerca de estacas afiadas; em volta do poço mais fundo, um trecho de muro de pedra velha que os próprios Grakh tinham erguido gerações antes. Não precisa de mais nada enquanto tiver a água.'],
       ] },
     },
 
