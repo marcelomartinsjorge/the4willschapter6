@@ -394,3 +394,53 @@ body.mg-fome #mg .j6-bg { filter: saturate(calc(1 - var(--fome) * .9)); }
 .qt-estado.para { background: #8a1c10; color: #fff; box-shadow: 0 0 30px rgba(180,30,10,.7); animation: trPulsa .5s ease-in-out infinite alternate; }
 @keyframes arPulsa2 { 50% { transform: translate(-50%, -50%) scale(1.08); } }
 #mg.jg-quieto.pouco-ar .qt-anel { animation: arPulsa2 .5s ease-in-out infinite; }
+
+/* ---- FARO v3: as camadas do cheiro ---- */
+.fr-topo { position: absolute; left: 50%; top: calc(58px + env(safe-area-inset-top,0px)); transform: translateX(-50%); width: min(620px, 90vw); z-index: 6; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fr-topo .fr-ajuda { position: static; transform: none; width: auto; }
+.fr-perg { margin: 0; font-family: var(--serif-d, serif); font-size: clamp(18px, 1.8vw, 24px); color: #ffe6bd; background: rgba(10,7,4,.78); padding: 8px 20px; border-radius: 6px; border: 1px solid rgba(255,210,140,.35); text-shadow: 0 1px 6px #000; }
+.fr-tag { position: absolute; transform: translate(-50%, calc(-100% - 34px)) scale(.85); opacity: 0; transition: opacity .4s, transform .4s; background: rgba(10,7,4,.8); border: 1px solid rgba(255,240,215,.22); border-radius: 6px; padding: 6px 12px 7px; min-width: 120px; text-align: center; pointer-events: none; white-space: normal; max-width: 230px; }
+.fr-tag.baixo { transform: translate(-50%, 34px) scale(.85); }
+.fr-tag.on { opacity: 1; transform: translate(-50%, calc(-100% - 34px)) scale(1); }
+.fr-tag.baixo.on { transform: translate(-50%, 34px) scale(1); }
+.fr-tag ul { list-style: none; margin: 0; padding: 0; }
+.fr-tag li { font-family: var(--serif-d, serif); font-size: clamp(13px, 1.15vw, 16px); line-height: 1.35; color: rgba(246,234,214,.72); }
+.fr-tag li:last-of-type:not(.falta), .fr-tag li.nova { color: #fff4dc; }
+.fr-tag li.nova { animation: frNota .6s ease; }
+.fr-tag li.barr { color: var(--ambar, #ffb347); font-weight: 600; letter-spacing: .1em; }
+.fr-tag li.falta { color: rgba(246,234,214,.45); letter-spacing: .35em; font-size: 14px; }
+@keyframes frNota { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fr-tag.dourado { border-color: rgba(255,210,122,.8); box-shadow: 0 0 14px rgba(255,200,110,.35); }
+.fr-tag.errado { opacity: .5 !important; }
+.fr-tag.errado li { text-decoration: line-through; }
+.fr-tag.certo { border-color: #ffd27a; box-shadow: 0 0 26px rgba(255,200,110,.7); }
+.fr-esse { pointer-events: auto; cursor: pointer; margin-top: 6px; font-family: var(--sans, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #2a1606; background: #f2c879; border: 0; border-radius: 4px; padding: 7px 14px; }
+.fr-esse:hover { background: #ffe0a0; }
+#mg.jg-faro .fr-tags { z-index: 5; }
+.fr-tags.afoga .fr-tag { opacity: .25; }
+.fr-nariz.pega circle.f { stroke: #fff; }
+#mg.jg-faro.fr-fim { cursor: default; }
+
+/* ---- TREINO v3: abrir não é vir ---- */
+#mg.jg-treino .tr-cheiro, #mg.jg-treino .tr-dica { display: none; }
+.tr-cena { position: absolute; inset: 0; overflow: hidden; }
+.tr-cena .tr-img { transition: opacity .1s, transform .28s ease-out; transform-origin: 72% 60%; }
+#mg.jg-treino .tr-img.ergue, #mg.jg-treino .tr-img.bate { opacity: 0; }
+#mg.jg-treino[data-f="vem"] .tr-img.ergue, #mg.jg-treino[data-f="isca"] .tr-img.ergue { opacity: 1; }
+#mg.jg-treino[data-f="vem"] .tr-img.guarda, #mg.jg-treino[data-f="isca"] .tr-img.guarda, #mg.jg-treino[data-f="bloqueia"] .tr-img.guarda { opacity: 0; }
+#mg.jg-treino[data-f="bloqueia"] .tr-img.bate { opacity: 1; }
+/* a vinda: o corpo dela cresce para cima de você */
+#mg.jg-treino[data-f="vem"] .tr-img.ergue { transform: scale(1.07) translateX(-2.5%); }
+/* a isca: abre e fica, até recua */
+#mg.jg-treino[data-f="isca"] .tr-img.ergue { transform: scale(.985) translateX(.8%); transition-duration: .5s; }
+.tr-poeira { position: absolute; left: 66%; top: 80%; width: 24vw; height: 14vh; border-radius: 50%; background: radial-gradient(ellipse, rgba(230,190,130,.75), rgba(230,190,130,0) 70%); opacity: 0; transform: scale(.4); filter: blur(4px); pointer-events: none; }
+#mg.jg-treino[data-f="vem"] .tr-poeira { animation: trPo .7s ease-out forwards; }
+@keyframes trPo { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.4) translateY(-20%); } }
+/* o cheiro: um fio pequeno, quente, no peito dela, só antes da vinda */
+.tr-fio { position: absolute; left: 72%; top: 34%; width: 3.2vw; height: 14vh; opacity: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 80%, rgba(255,140,80,.55), rgba(255,120,60,0) 70%); filter: blur(6px); }
+#mg.jg-treino[data-f="cheiro"] .tr-fio, #mg.jg-treino[data-f="vem"] .tr-fio { animation: trFioSobe .6s ease-out forwards; }
+@keyframes trFioSobe { 0% { opacity: 0; transform: translateY(20%) scaleY(.6); } 40% { opacity: .85; } 100% { opacity: 0; transform: translateY(-40%) scaleY(1.2); } }
+.tr-tok { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 70% 40%, rgba(255,240,210,.55), transparent 45%); }
+#mg.jg-treino.tok .tr-tok { animation: trDor .35s ease-out; }
+#mg.jg-treino.tok .tr-cena { animation: trTreme .22s; }
+#mg.jg-treino.dor .tr-cena { animation: trTreme .3s; }

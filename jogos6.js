@@ -57,12 +57,14 @@ const segura = (root, opts = {}) => {
 };
 
 // ================================================================== FARO
-// O nariz do Kronk. Cada coisa solta uma fumaça de cheiro que o vento leva: mais grossa onde nasce,
-// mais rala longe. O ponteiro (o dedo, ou o mouse) é o nariz. Segurar é puxar o ar: a fumaça perto
-// do nariz vem para ele. Cheiro puxado o bastante vira palavra. O jogo é achar de onde o cheiro nasce.
-// Modos: alvo (achar um), sequencia (os cheiros chegam sozinhos), rastro (as pegadas do bicho só
-// aparecem perto do nariz; chegar perto do bicho antes da hora o espanta), cavar (cheirar três
-// buracos e escolher onde cavar). Com fome, os cheiros de comida vêm atrás do nariz sozinhos.
+// O nariz do Kronk, como investigação. Cada coisa da imagem solta uma fumaça de cheiro. O ponteiro
+// (o dedo, ou o mouse) é o nariz: segurar perto de onde a fumaça nasce é cheirar. Cada cheiro tem
+// camadas (notas): a primeira vem logo; as de baixo só vêm para quem fica cheirando. Muitos cheiros
+// começam iguais e só se separam na última nota. A pergunta da cena fica no alto, e o jogo só
+// acaba quando o leitor decide ("É esse", ou cavar). Errar não perde: custa e ensina.
+// Modos: alvo (pergunta e resposta), sequencia (os cheiros chegam sozinhos, e um afoga todos),
+// rastro (as pegadas só aparecem perto do nariz; chegar no bicho antes da hora o espanta),
+// cavar (cheirar os buracos; só dá para cavar onde já cheirou). Com fome, a comida puxa o nariz.
 function clareia(cor, m = .32) {
   const n = parseInt(cor.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255, f = (v) => Math.round(v + (255 - v) * m).toString(16).padStart(2, '0');
   return '#' + f(r) + f(g) + f(b);
@@ -77,43 +79,39 @@ function faro(root, c) {
   const { A, L, p } = c;
   const cfg = L.faro[p.jogoId], modo = cfg.modo, fome = c.fomeAlta(), en = c.lang === 'en';
   const toque = matchMedia('(pointer: coarse)').matches;
+  const T2 = (t) => c.sub(c.tr(t));
   return new Promise((resolve) => {
     fundo(root, cfg.img, 'faro-bg');
-    root.insertAdjacentHTML('beforeend', '<canvas class="fr-cv"></canvas><div class="fr-tags"></div><div class="fr-cavar"></div><div class="fr-nariz"><svg viewBox="0 0 100 100"><circle class="f" cx="50" cy="50" r="44"/><circle class="p" cx="50" cy="50" r="44"/></svg></div><p class="fr-ajuda"></p>');
-    const cv = root.querySelector('.fr-cv'), cx = cv.getContext('2d'), tags = root.querySelector('.fr-tags'), cavar = root.querySelector('.fr-cavar');
-    const nariz = root.querySelector('.fr-nariz'), narizP = nariz.querySelector('.p'), ajuda = root.querySelector('.fr-ajuda');
+    root.insertAdjacentHTML('beforeend', '<canvas class="fr-cv"></canvas><div class="fr-tags"></div><div class="fr-nariz"><svg viewBox="0 0 100 100"><circle class="f" cx="50" cy="50" r="44"/><circle class="p" cx="50" cy="50" r="44"/></svg></div><div class="fr-topo"><p class="fr-perg"></p><p class="fr-ajuda"></p></div>');
+    const cv = root.querySelector('.fr-cv'), cx = cv.getContext('2d'), tags = root.querySelector('.fr-tags');
+    const nariz = root.querySelector('.fr-nariz'), narizP = nariz.querySelector('.p'), ajuda = root.querySelector('.fr-ajuda'), perg = root.querySelector('.fr-perg');
     const P = painel(root);
     let W = 0, H = 0; const dpr = Math.min(devicePixelRatio || 1, 2);
-    // o nariz: onde o ponteiro está; segurar (clique, dedo ou espaço) é puxar o ar
+    // o nariz: onde o ponteiro está; segurar (clique, dedo ou espaço) é cheirar
     const nz = { x: -999, y: -999, puxa: false, dentro: false };
+    let espaco = false;
     const pos = (e) => { const r = root.getBoundingClientRect(); nz.x = e.clientX - r.left; nz.y = e.clientY - r.top; nz.dentro = true; };
     const naoE = (e) => e.target.closest && e.target.closest('button, .j6-gesto, .mg-x');
     const pd = (e) => { if (window.__mgPausa || naoE(e)) return; pos(e); nz.puxa = true; if (e.pointerType !== 'mouse') { try { root.setPointerCapture(e.pointerId); } catch (er) {} } };
     const pm = (e) => { pos(e); if (e.pointerType === 'mouse' && e.buttons === 0 && !espaco) nz.puxa = false; };
     const pu = () => { if (!espaco) nz.puxa = false; if (toque) nz.dentro = false; };
-    let espaco = false;
     const kd = (e) => { if (e.code === 'Space' && !e.repeat) { e.preventDefault(); espaco = true; nz.puxa = true; } };
     const ku = (e) => { if (e.code === 'Space') { espaco = false; nz.puxa = false; } };
     root.addEventListener('pointerdown', pd); root.addEventListener('pointermove', pm); addEventListener('pointerup', pu); addEventListener('pointercancel', pu); addEventListener('keydown', kd); addEventListener('keyup', ku);
     root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') nz.dentro = false; });
-    ajuda.textContent = toque ? (en ? 'Hold your finger on the screen to sniff. Drag toward where the smell is born.' : 'Segure o dedo na tela para cheirar. Arraste até onde o cheiro nasce.')
-      : (en ? 'Hold the click (or space) to sniff. Move the nose to where the smell is born.' : 'Segure o clique (ou o espaço) para cheirar. Leve o nariz até onde o cheiro nasce.');
+    ajuda.textContent = toque ? (en ? 'Hold your finger where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o dedo onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.')
+      : (en ? 'Hold the click (or space) where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o clique (ou o espaço) onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.');
+    if (cfg.pergunta) perg.textContent = T2(cfg.pergunta); else perg.remove();
 
     // as fontes de cheiro
-    const lembra = (f) => f.cheiro && c.st.nariz && c.st.nariz.includes(f.cheiro);
-    const fontes = cfg.fios.map((f, i) => Object.assign({}, f, { got: 0, feito: false, vis: modo === 'sequencia' ? 0 : 1, seed: i * 7 + 3, acc: 0, img: blob(f.cor), gold: null }));
-    // a fome afia o nariz e traz um cheiro a mais: carne de três sol, que vem atrás do nariz
-    if (fome && (modo === 'alvo' || modo === 'rastro') && !fontes.some((f) => f.id === 'carcaca')) fontes.push({ id: 'carcaca', cor: '#8a9a3a', ate: [.74, .3], larg: 18, isca: true, texto: c.L.nariz.carcaca.nome, cheiro: 'carcaca', got: 0, feito: false, vis: 1, seed: 77, acc: 0, img: blob('#8a9a3a') });
-    fontes.forEach((f) => { if (lembra(f)) f.gold = blob('#ffd27a'); });
-    const need = (f) => (f.auto ? 1e9 : (modo === 'sequencia' ? 14 : f.fino ? 18 : 24) * (lembra(f) ? .5 : 1));
-    // o vento: para onde a fumaça vai
+    const conhece = (id) => id && c.st.nariz && c.st.nariz.includes(id);
+    const fontes = cfg.fios.map((f, i) => Object.assign({}, f, { k: 0, nv: 0, feito: false, vis: modo === 'sequencia' ? 0 : 1, seed: i * 7 + 3, acc: 0, img: blob(f.cor), el: null }));
+    if (fome && (modo === 'alvo' || modo === 'rastro') && !fontes.some((f) => f.id === 'carcaca')) fontes.push({ id: 'carcaca', cor: '#8a9a3a', ate: [.88, .2], larg: 18, isca: true, notas: L.faro.isca.notas, nao: L.faro.isca.nao, cheiro: 'carcaca', k: 0, nv: 0, feito: false, vis: 1, seed: 77, acc: 0, img: blob('#8a9a3a') });
+    fontes.forEach((f) => { f.notas = f.notas || [f.texto]; f.gold = conhece(f.cheiro) || conhece(f.lembraDe) ? blob('#ffd27a') : null; });
     const vento = cfg.vento === 'dir' ? 1 : cfg.vento === 'esq' ? -1 : .35;
     const parts = [];
-    const fx = (f) => { const t = performance.now() / 1000; return (f.ate[0] + (f.anda && !f.feito ? Math.sin(t * .5 + f.seed) * .07 : 0)) * W; };
-    const fy = (f) => { const t = performance.now() / 1000; return (f.ate[1] + (f.anda && !f.feito ? Math.cos(t * .41 + f.seed) * .05 : 0)) * H; };
-    const tam = () => { const r = root.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); if (rastro) rastro.pts = geraRastro(); };
-
-    // o rastro do bicho (caça): pegadas que só aparecem perto do nariz
+    const fx = (f) => { const t = performance.now() / 1000; return (f.ate[0] + (f.anda && !f.feito ? Math.sin(t * .5 + f.seed) * .04 : 0)) * W; };
+    const fy = (f) => { const t = performance.now() / 1000; return (f.ate[1] + (f.anda && !f.feito ? Math.cos(t * .41 + f.seed) * .03 : 0)) * H; };
     let rastro = null;
     const geraRastro = () => {
       const pts = [], N = 9, b = cfg.bicho || [.84, .6], o = cfg.inicio || [.1, .7];
@@ -121,124 +119,147 @@ function faro(root, c) {
       return pts;
     };
     if (modo === 'rastro') rastro = { seed: 1, i: 0, k: 0, magro: false, pts: [] };
-    tam(); addEventListener('resize', tam);
+    const tam = () => { const r = root.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); if (rastro) rastro.pts = geraRastro(); fontes.forEach(posTag); };
     c.gesto(root, 'nariz', 'faro');
 
-    const t0 = performance.now(); let last = t0, tempo = 0, fim = false, seguidos = 0, iscasFeitas = 0, iscaT = 0, parado = 0;
+    let last = performance.now(), tempo = 0, fim = false, iscas = 0, iscaT = 0, erros = 0, parado = 0, sniffT = 0, ensinouCamada = false;
     const limpa = () => { removeEventListener('resize', tam); removeEventListener('pointerup', pu); removeEventListener('pointercancel', pu); removeEventListener('keydown', kd); removeEventListener('keyup', ku); };
-    const termina = (res, ms = 1800) => { if (fim) return; fim = true; nariz.classList.add('fora'); setTimeout(() => { limpa(); resolve(res); }, BOT() ? 100 : ms); };
-    const tag = (f, x, y) => { const s = c.sub(c.tr(f.texto || '')).replace(/^§\s*/, ''); if (!s) return; const t = document.createElement('span'); t.className = 'fr-tag' + (f.alvo ? ' alvo' : '') + (f.isca ? ' isca' : ''); t.textContent = s.length > 46 ? s.slice(0, 44) + '…' : s; t.style.left = (x / W * 100) + '%'; t.style.top = (y / H * 100) + '%'; tags.appendChild(t); requestAnimationFrame(() => t.classList.add('on')); };
-    const completa = (f) => {
-      if (f.feito) return;
-      f.feito = true; seguidos++; ajuda.classList.add('some');
-      if (f.isca) iscasFeitas++;
-      A.fareja && A.fareja();
-      if (f.texto) P.diz(f.texto, c, f.alvo ? 'alvo' : '');
-      if (f.texto && /^§/.test(c.tr(f.texto))) A.ronco && A.ronco(1);
-      if (f.cheiro) c.cheiro(f.cheiro, f.modo);
-      if (!f.auto) tag(f, fx(f), fy(f));
-      // a explosão de cheiro na fonte
-      for (let i = 0; i < 26; i++) { const a = Math.random() * 6.28, v = 40 + Math.random() * 120; parts.push({ f, x: fx(f), y: fy(f), vx: Math.cos(a) * v, vy: Math.sin(a) * v, age: 0, life: .9, r: 10 + Math.random() * 14, pop: true }); }
-      if (modo === 'alvo' && f.alvo) {
-        const pts = Math.max(300, Math.round(1600 - tempo * 30 + 200 * (seguidos - 1) - 220 * iscasFeitas));
-        termina({ tempo: Math.round(tempo), seguidos, iscas: iscasFeitas, pontos: pts });
-      }
-      if (modo === 'cavar' && !cavar.childElementCount) mostraCavar();
-      if (modo === 'cavar' && fontes.every((x) => x.feito)) P.diz(en ? 'Three holes. Three smells. Kronk choose.' : 'Três buraco. Três cheiro. Kronk escolher.', c);
-    };
-    const mostraCavar = () => {
-      fontes.forEach((f) => {
-        const b = document.createElement('button'); b.className = 'fr-dig'; b.type = 'button'; b.dataset.id = f.id;
-        b.style.left = (f.ate[0] * 100) + '%'; b.style.top = (f.ate[1] * 100 + 9) + '%';
-        b.innerHTML = `<i></i><span>${c.esc(en ? 'Dig here' : 'Cavar aqui')}</span>`;
-        const vai = (e) => { e.preventDefault(); e.stopPropagation(); if (fim) return; A.sfx('cavar', .6, () => A.hiss(.6, 400, .6, .12, 0, 'lowpass')); cavar.querySelectorAll('.fr-dig').forEach((x) => x.classList.toggle('sel', x === b)); termina({ escolha: f.id, cheirou: fontes.filter((x) => x.feito).map((x) => x.id), pontos: { A: 1500, B: 300, C: 600 }[f.id] || 500 }, 900); };
-        b.addEventListener('pointerdown', (e) => e.stopPropagation()); b.addEventListener('click', vai);
-        cavar.appendChild(b); requestAnimationFrame(() => b.classList.add('on'));
-      });
-    };
+    const termina = (res, ms = 1800) => { if (fim) return; fim = true; nariz.classList.add('fora'); root.classList.add('fr-fim'); setTimeout(() => { limpa(); resolve(res); }, BOT() ? 100 : ms); };
 
-    let sniffT = 0;
+    // a etiqueta de cada cheiro: as notas que já vieram, e o botão da decisão
+    function posTag(f) { if (!f.el) return; const x = clamp(f.ate[0], .1, .9), y = f.ate[1]; f.el.style.left = (x * 100) + '%'; f.el.style.top = (y * 100) + '%'; f.el.classList.toggle('baixo', y < .3); }
+    function desenhaTag(f) {
+      if (!f.el) { f.el = document.createElement('div'); f.el.className = 'fr-tag'; tags.appendChild(f.el); posTag(f); requestAnimationFrame(() => f.el.classList.add('on')); }
+      const notas = f.notas.slice(0, f.nv).map((t, i) => { const s = T2(t), barr = /^§/.test(s); return `<li class="${i === f.nv - 1 ? 'nova' : ''} ${barr ? 'barr' : ''}">${c.esc(s.replace(/^§\s*/, ''))}</li>`; }).join('');
+      const falta = f.notas.length - f.nv;
+      let botao = '';
+      if (f.feito && !f.errado && !fim) {
+        if (modo === 'alvo' && cfg.pergunta) botao = `<button type="button" class="fr-esse">${c.esc(en ? 'This one' : 'É esse')}</button>`;
+        if (modo === 'cavar') botao = `<button type="button" class="fr-esse cava">${c.esc(en ? 'Dig here' : 'Cavar aqui')}</button>`;
+      }
+      f.el.innerHTML = `<ul>${notas}${falta > 0 ? '<li class="falta">' + '·'.repeat(falta) + '</li>' : ''}</ul>${botao}`;
+      f.el.classList.toggle('dourado', !!f.gold && f.feito);
+      const b = f.el.querySelector('.fr-esse');
+      if (b) { b.addEventListener('pointerdown', (e) => e.stopPropagation()); b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide(f); }); }
+    }
+    const novaNota = (f) => {
+      f.nv++; desenhaTag(f); A.fareja && A.fareja();
+      const s = T2(f.notas[f.nv - 1]); if (/^§/.test(s)) { A.ronco && A.ronco(1); }
+      if (f.nv === 1) ajuda.classList.add('some');
+      if (f.nv === 1 && f.notas.length > 1 && !ensinouCamada && modo !== 'sequencia') { ensinouCamada = true; P.diz(en ? 'Smell have more under. Kronk stay.' : 'Cheiro ter mais embaixo. Kronk ficar.', c); }
+      if (f.nv >= f.notas.length) completa(f);
+    };
+    const completa = (f) => {
+      f.feito = true; desenhaTag(f);
+      if (f.isca) { iscas++; iscaT += 2; }
+      if (f.cheiro) c.cheiro(f.cheiro, f.modo);
+      for (let i = 0; i < 22; i++) { const a = Math.random() * 6.28, v = 40 + Math.random() * 120; parts.push({ f, x: fx(f), y: fy(f), vx: Math.cos(a) * v, vy: Math.sin(a) * v, age: 0, life: .9, r: 10 + Math.random() * 14, pop: true }); }
+      if (modo === 'alvo' && !cfg.pergunta && f.alvo) decide(f);   // sem pergunta: achar é responder
+    };
+    function decide(f) {
+      if (fim) return;
+      if (modo === 'cavar') {
+        A.sfx('cavar', .6, () => A.hiss(.6, 400, .6, .12, 0, 'lowpass'));
+        f.el.classList.add('certo');
+        return termina({ escolha: f.id, cheirou: fontes.filter((x) => x.feito).map((x) => x.id), pontos: { A: 1500, B: 300, C: 600 }[f.id] || 500 }, 1100);
+      }
+      if (f.alvo) {
+        f.el.classList.add('certo'); A.fareja && A.fareja();
+        if (f.texto) P.diz(f.texto, c, 'alvo');
+        const pts = Math.max(300, Math.round(1700 - tempo * 12 - erros * 300 - iscas * 220 + fontes.filter((x) => x.feito).length * 80));
+        return termina({ tempo: Math.round(tempo), seguidos: fontes.filter((x) => x.feito).length, iscas, erros, pontos: pts }, 2200);
+      }
+      erros++; f.errado = true; f.el.classList.add('errado'); desenhaTag(f);
+      P.diz(f.nao || (en ? 'Not this one.' : 'Num ser esse.'), c);
+      A.tone && A.tone(150, .18, 'sine', .06);
+    }
+
+    tam(); addEventListener('resize', tam);
     const loop = (now) => {
       if (!root.isConnected) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (window.__mgPausa) return requestAnimationFrame(loop);
       tempo += dt; const tt = now / 1000;
-      // o robô dos testes: leva o nariz até o cheiro certo
+      // o robô dos testes: cheira o alvo até o fim e escolhe
       if (BOT()) {
-        const alvo = rastro && !rastro.fim ? null : fontes.find((f) => (f.alvo || (modo === 'cavar' && f.id === 'A') || (modo === 'sequencia' && !f.auto)) && !f.feito && f.vis > .3);
+        const alvo = fontes.find((f) => (f.alvo || (modo === 'cavar' && f.id === 'A') || (modo === 'sequencia' && !f.auto)) && !f.feito && f.vis > .3);
         if (rastro) { const q = rastro.pts[Math.min(rastro.i, rastro.pts.length - 1)]; nz.x = q.x; nz.y = q.y; }
         else if (alvo) { nz.x = fx(alvo); nz.y = fy(alvo); }
         nz.puxa = true; nz.dentro = true;
+        const pronto = fontes.find((f) => f.feito && (f.alvo || (modo === 'cavar' && f.id === 'A')));
+        if (pronto && !fim && modo !== 'sequencia') decide(pronto);
       }
       const puxa = nz.puxa && nz.dentro && !fim;
-      // o nariz na tela
       nariz.style.transform = `translate(${nz.x}px, ${nz.y}px)`;
       nariz.classList.toggle('on', nz.dentro && !fim); nariz.classList.toggle('puxa', puxa);
-      if (puxa) { sniffT -= dt; if (sniffT <= 0) { sniffT = .55; A.fareja && A.fareja(); } } else sniffT = 0;
-      // ninguém mexendo há um tempo: o cheiro mais forte que falta pulsa
+      if (puxa) { sniffT -= dt; if (sniffT <= 0) { sniffT = .6; A.fareja && A.fareja(); } } else sniffT = 0;
       parado = puxa ? 0 : parado + dt;
       cx.clearRect(0, 0, W, H);
       // as fontes soltam fumaça
       fontes.forEach((f) => {
         if (modo === 'sequencia' && tempo >= (f.t || 0)) f.vis = Math.min(1, f.vis + dt * .9);
-        if (!f.vis) return;
-        if (f.auto) return;
-        const rate = (f.feito ? 7 : f.fino ? 14 : f.forte ? 36 : 24) * f.vis * (fome && f.isca ? 1.5 : 1);
+        if (!f.vis || f.auto) return;
+        const rate = (f.feito ? 8 : f.fino ? 14 : f.forte ? 34 : 22) * f.vis * (fome && f.isca ? 1.5 : 1);
         f.acc += rate * dt;
         while (f.acc >= 1) { f.acc--; const sx = fx(f), sy = fy(f); parts.push({ f, x: sx + (Math.random() - .5) * 14, y: sy + (Math.random() - .5) * 14, vx: vento * (40 + Math.random() * 45) + (Math.random() - .5) * 24, vy: -32 - Math.random() * 40, age: 0, life: 3.4 + Math.random() * 1.8, r: (f.larg || 14) * (f.fino ? .45 : .7) }); }
       });
-      // o cheiro que vem sozinho (sequência): cobre tudo
+      // o cheiro que afoga todos (sequência)
       const auto = fontes.find((f) => f.auto && f.vis > 0);
       if (auto) {
         const a = auto.vis, g = cx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * .7);
         g.addColorStop(0, `rgba(60,48,70,${a * .35})`); g.addColorStop(1, `rgba(40,30,50,${a * .8})`); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         for (let k = 0; k < 6; k++) parts.push({ f: auto, x: Math.random() * W, y: H + 10, vx: (Math.random() - .5) * 40, vy: -40 - Math.random() * 60, age: 0, life: 3, r: 40 });
-        if (a >= 1 && !auto.feito) { auto.dt = (auto.dt || 0) + dt; if (auto.dt > 2.4) { completa(auto); termina({ seguidos, pontos: 600 + 250 * (seguidos - 1) }, 2600); } }
+        tags.classList.toggle('afoga', a > .5);
+        if (a >= 1 && !auto.feito) { auto.dt = (auto.dt || 0) + dt; if (auto.dt > 2.6) { auto.feito = true; if (auto.cheiro) c.cheiro(auto.cheiro, auto.modo); termina({ seguidos: fontes.filter((x) => x.feito).length, pontos: 600 + 250 * fontes.filter((x) => x.feito && !x.auto).length }, 2600); } }
       }
-      // as partículas: sobem, o vento leva, ondulam; perto do nariz que puxa, vão para ele
+      // cheirar: a fonte mais perto do nariz, dentro do alcance, ganha camada
+      const RS = toque ? 105 : 90;
+      let alvoNz = null, dMin = 1e9;
+      if (puxa) fontes.forEach((f) => { if (f.feito || f.auto || f.vis < .5) return; const d = Math.hypot(nz.x - fx(f), nz.y - fy(f)); if (d < RS && d < dMin) { dMin = d; alvoNz = f; } });
+      // a fome: perto da comida, o nariz é puxado para ela
+      if (puxa && fome) { const isca = fontes.find((f) => f.isca && !f.feito && Math.hypot(nz.x - fx(f), nz.y - fy(f)) < RS * 2.4); if (isca && alvoNz !== isca && Math.random() < dt * 1.2) { alvoNz = isca; iscaT += dt; } }
+      if (alvoNz) {
+        const f = alvoNz, rapido = f.gold ? 1.7 : 1;
+        f.k += dt / (f.fino ? 1.35 : 1.05) * rapido * (BOT() ? 4 : 1);
+        const deve = Math.min(f.notas.length, Math.floor(f.k + .0001));
+        while (f.nv < deve && !f.feito) novaNota(f);
+      }
+      // as partículas
       const R = toque ? 150 : 130;
       for (let i = parts.length - 1; i >= 0; i--) {
         const q = parts[i]; q.age += dt;
         if (q.age >= q.life) { parts.splice(i, 1); continue; }
         if (!q.pop) { q.vx += Math.sin(tt * 1.3 + q.y * .015 + q.f.seed) * 38 * dt; q.r += dt * (q.f.fino ? 7 : 15); }
         const dx = nz.x - q.x, dy = nz.y - q.y, d = Math.hypot(dx, dy) || 1;
-        // a fome: a comida vem atrás do nariz mesmo sem puxar
         const isca = fome && q.f.isca && !q.f.feito && nz.dentro;
         if (!q.pop && ((puxa && d < R) || (isca && d < 300))) {
           const k = (puxa && d < R ? (1 - d / R) * 1400 : 0) + (isca ? 260 * (1 - d / 300) : 0);
           q.vx += dx / d * k * dt; q.vy += dy / d * k * dt; q.vx *= .94; q.vy *= .94;
-          if (d < 18 && puxa) { parts.splice(i, 1); if (!q.f.feito) { q.f.got += lembra(q.f) ? 1.6 : 1; if (q.f.isca) iscaT += .12; } continue; }
+          if (d < 18 && puxa) { parts.splice(i, 1); continue; }
         }
         q.x += q.vx * dt; q.y += q.vy * dt;
       }
-      // puxar em cima da fonte enche mais depressa: o lugar onde o cheiro nasce
-      if (puxa) fontes.forEach((f) => { if (f.feito || f.auto || !f.vis) return; const d = Math.hypot(nz.x - fx(f), nz.y - fy(f)); if (d < 70) f.got += dt * 9 * (1 - d / 70) * (lembra(f) ? 1.6 : 1); });
-      fontes.forEach((f) => { if (!f.feito && !f.auto && f.got >= need(f)) completa(f); });
-      // desenha as partículas
       cx.globalCompositeOperation = 'screen';
       parts.forEach((q) => {
-        const t = q.age / q.life, al = (q.pop ? (1 - t) * .8 : Math.min(1, q.age * 2.5) * Math.pow(1 - t, 1.3) * .38) * (q.f.feito && !q.pop ? .45 : 1) * (q.f.vis || 1);
-        const img = q.f.gold && !q.f.feito ? q.f.gold : q.f.img;
+        const t = q.age / q.life, al = (q.pop ? (1 - t) * .8 : Math.min(1, q.age * 2.5) * Math.pow(1 - t, 1.3) * .38) * (q.f.feito && !q.pop ? .5 : 1) * (q.f.vis || 1);
+        const img = q.f.gold && q.f.feito ? q.f.gold : q.f.img;
         cx.globalAlpha = al; const r = q.r * (q.pop ? 1 + t : 1); cx.drawImage(img, q.x - r, q.y - r, r * 2, r * 2);
       });
       cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
-      // a dica: parado muito tempo, a fonte certa respira
-      if (parado > 6 && !fim) {
-        const f = fontes.find((x) => x.alvo && !x.feito) || fontes.find((x) => !x.feito && !x.auto && x.vis > .5 && !x.isca);
-        if (f) { const r = 30 + Math.sin(tt * 4) * 8; cx.strokeStyle = 'rgba(255,226,173,.35)'; cx.lineWidth = 2; cx.beginPath(); cx.arc(fx(f), fy(f), r, 0, 6.3); cx.stroke(); }
+      // a dica: parado muito tempo, uma fonte ainda não cheirada respira
+      if (parado > 7 && !fim) {
+        const f = fontes.find((x) => !x.feito && !x.auto && x.vis > .5 && !x.isca);
+        if (f) { const r = 34 + Math.sin(tt * 4) * 8; cx.strokeStyle = 'rgba(255,226,173,.4)'; cx.lineWidth = 2; cx.beginPath(); cx.arc(fx(f), fy(f), r, 0, 6.3); cx.stroke(); }
       }
-      // o anel do nariz: o quanto do cheiro mais puxado já entrou
-      const melhor = fontes.filter((f) => !f.feito && !f.auto).sort((a, b) => b.got / need(b) - a.got / need(a))[0];
-      const kN = melhor ? Math.min(1, melhor.got / need(melhor)) : 0;
+      // o anel do nariz: quanto falta da próxima camada do cheiro que está sendo cheirado
+      const kN = alvoNz ? alvoNz.k - Math.floor(alvoNz.k) : 0;
       narizP.style.strokeDashoffset = (277 * (1 - kN)).toFixed(1);
-      narizP.style.stroke = melhor ? (melhor.gold ? '#ffd27a' : melhor.cor) : '#fff';
-      // o cheiro que não foi puxado se perde devagar
-      fontes.forEach((f) => { if (!f.feito && !puxa) f.got = Math.max(0, f.got - dt * 1.5); });
+      narizP.style.stroke = alvoNz ? (alvoNz.gold ? '#ffd27a' : clareia(alvoNz.cor, .2)) : '#fff';
+      nariz.classList.toggle('pega', !!alvoNz);
 
       // o rastro do bicho
       if (rastro && !fim) {
         const pts = rastro.pts, N = pts.length - 1, bicho = pts[N];
-        // as pegadas: as já cheiradas ficam; a próxima aparece se o nariz estiver perto e puxando
         for (let i = 0; i < N; i++) {
           const q = pts[i], d = Math.hypot(nz.x - q.x, nz.y - q.y), feita = i < rastro.i;
           const vis = feita ? .75 : (i === rastro.i ? (puxa ? clamp(1.2 - d / 220, 0, 1) : .12 + .1 * Math.sin(tt * 3)) : (puxa ? clamp(.6 - d / 260, 0, .4) : 0));
@@ -248,24 +269,20 @@ function faro(root, c) {
           cx.globalAlpha = 1;
           if (i === rastro.i && puxa && d < 60) { rastro.k += dt; if (rastro.k > .45) { rastro.i++; rastro.k = 0; A.fareja(); } }
         }
-        // o bicho, no fim; perto do fim ele aparece
         const pr = rastro.i / N;
-        // o cheiro do bicho: fraco longe, forte quando o rastro chega perto
         if (pr > .5) { const g = cx.createRadialGradient(bicho.x, bicho.y, 0, bicho.x, bicho.y, 70); g.addColorStop(0, `rgba(240,200,140,${(pr - .5) * .5 * (.7 + .3 * Math.sin(tt * 4))})`); g.addColorStop(1, 'rgba(240,200,140,0)'); cx.fillStyle = g; cx.beginPath(); cx.arc(bicho.x, bicho.y, 70, 0, 6.3); cx.fill(); }
-        // chegar no bicho antes de seguir o rastro: ele sente o Kronk e foge
         if (puxa && Math.hypot(nz.x - bicho.x, nz.y - bicho.y) < 110 && pr < .75 && !rastro.magro) {
           rastro.magro = true; rastro.seed = 9; rastro.i = 0; rastro.pts = geraRastro();
           P.diz(en ? 'Beast smell Kronk. Beast run.' : 'Bicho cheirar Kronk. Bicho correr.', c);
           A.sfx('bicho-foge', .6, () => A.hiss(.8, 900, .5, .1));
         }
         if (tempo > 60 && !rastro.magro) { rastro.magro = true; rastro.seed = 9; rastro.i = 0; rastro.pts = geraRastro(); P.diz(en ? 'Beast go. Other beast. Thinner.' : 'Bicho ir. Outro bicho. Mais magro.', c); }
-        if (BOT()) { rastro.k += dt * 4; }
+        if (BOT()) rastro.k += dt * 4;
         if (rastro.i >= N) {
           P.diz(cfg.rastro.texto, c, 'alvo'); A.fareja();
           termina({ caca: rastro.magro ? 'magro' : 'bom', isca: Math.round(iscaT * 10) / 10, tempo: Math.round(tempo), pontos: Math.max(400, (rastro.magro ? 1300 : 2600) - Math.round(iscaT * 120)) }, 1600);
         }
       }
-      if (BOT() && modo === 'cavar' && fontes[0].feito && !fim) { const b = cavar.querySelector('.fr-dig'); b && b.click(); }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame((n) => { last = n; requestAnimationFrame(loop); });
@@ -426,68 +443,64 @@ function olhar(root, c) {
 }
 
 // ================================================================== TREINO (o pau da Hessa)
-// O olho vê o pau subir. O nariz sente antes: o suor da Hessa muda um instante antes do golpe.
-// Duas vezes ela finge: ergue o pau sem o cheiro. Quem bate no que vê, apanha; quem bate no que cheira, acerta.
+// A Hessa abre a guarda de dois jeitos. Golpe de verdade: ela vem (o corpo avança, o pé levanta areia,
+// e um instante antes o nariz sente o cheiro dela). Isca: ela abre e fica, até recua um pouco. Bater na
+// vinda é acertar; bater na isca ou na guarda fechada é apanhar; esperar na vinda também é apanhar.
+// As três imagens: a guarda, ela de pau erguido (aberta), o Kronk batendo na guarda dela.
 function treino(root, c) {
   const { A, L } = c, cfg = L.treino;
   const en = c.lang === 'en';
-  const ROT = (cfg.roteiro || ['real', 'real', 'finta', 'real', 'finta', 'real']).slice();
-  const reais = ROT.length;
-  const CHEIRO = .75, ABERTA = .7, GRACA = .16;
+  const ROT = (cfg.roteiro || ['real', 'real', 'isca', 'real', 'isca', 'isca', 'real', 'real']).slice();
   return new Promise((resolve) => {
-    root.insertAdjacentHTML('beforeend', `<div class="tr-img guarda" style="background-image:url('${cfg.guarda}')"></div><div class="tr-img ergue" style="background-image:url('${cfg.ergue}')"></div><div class="tr-img bate" style="background-image:url('${cfg.bate || cfg.guarda}')"></div><div class="tr-cheiro"><svg viewBox="0 0 100 200" preserveAspectRatio="none"><path class="f0" d="M30 200 C 10 160, 50 130, 30 95 S 10 40, 35 5"/><path class="f1" d="M50 200 C 30 160, 70 130, 50 95 S 30 40, 55 5"/><path class="f2" d="M70 200 C 50 160, 90 130, 70 95 S 50 40, 75 5"/></svg></div><div class="j6-veu leve"></div><ol class="tr-cont">${'<li></li>'.repeat(reais)}</ol><div class="tr-dica"></div><div class="tr-dor"></div>`);
-    const P = painel(root), cont = root.querySelectorAll('.tr-cont li'), dica = root.querySelector('.tr-dica');
+    root.insertAdjacentHTML('beforeend', `<div class="tr-cena"><div class="tr-img guarda" style="background-image:url('${cfg.guarda}')"></div><div class="tr-img ergue" style="background-image:url('${cfg.ergue}')"></div><div class="tr-img bate" style="background-image:url('${cfg.bate || cfg.guarda}')"></div><i class="tr-poeira"></i><i class="tr-fio"></i></div><div class="j6-veu leve"></div><ol class="tr-cont">${'<li></li>'.repeat(ROT.length)}</ol><div class="tr-dor"></div><div class="tr-tok"></div>`);
+    const P = painel(root), cont = root.querySelectorAll('.tr-cont li');
     c.gesto(root, 'tocar', 'treino');
-    let fase = 'guarda', t = 0, dur = 1.2, k = 0, n = 0, acertos = 0, enganado = 0, fim = false, last = performance.now(), ensinou = false, fintas = 0, graca = 0;
-    const mostra = (txt, cls) => { dica.textContent = txt; dica.className = 'tr-dica on ' + (cls || ''); };
-    const esconde = () => { dica.className = 'tr-dica'; };
-    const set = (f, d) => {
-      fase = f; t = 0; dur = d;
-      root.classList.toggle('aberta', f === 'aberta' || f === 'finge'); root.classList.toggle('cheira', f === 'cheiro' || f === 'aberta'); root.classList.toggle('bateu-guarda', f === 'bateu');
-      if (f === 'cheiro') { A.hiss(.5, 700, .9, .06); if (n < 2) mostra(en ? 'THE SMELL · STRIKE' : 'O CHEIRO · BATA', 'bata'); }
-      else if (f === 'finge') { fintas++; if (fintas === 1) mostra(en ? 'NO SMELL · WAIT' : 'SEM CHEIRO · ESPERE', 'espera'); }
-      else if (f !== 'aberta') esconde();
-    };
+    let fase = 'guarda', t = 0, dur = 1.6, k = 0, n = 0, acertos = 0, enganado = 0, fim = false, last = performance.now(), ensinou = false, viuVinda = false, viuIsca = false;
+    const cls = (f) => { root.dataset.f = f; };
+    const set = (f, d) => { fase = f; t = 0; dur = d; cls(f); };
+    const aperto = () => Math.max(.5, .82 - k * .045);   // a janela da vinda encurta
     const bastao = () => A.sfx('bastao', .7, () => { A.tone(420, .07, 'square', .06); A.hiss(.08, 2000, 2, .1); });
-    const apanha = (txt) => { bastao(); P.diz(txt, c); root.classList.remove('dor'); void root.offsetWidth; root.classList.add('dor'); };
-    const proxima = () => { k++; if (k >= ROT.length) { fim = true; esconde(); removeEventListener('keydown', kd); P.diz(acertos >= 4 ? cfg.fimBom : cfg.fim, c); setTimeout(() => resolve({ acertos, enganado }), BOT() ? 50 : 1500); return; } set('guarda', 1 + Math.random() * 1.1); };
-    const marca = (ok) => { if (cont[n]) cont[n].className = ok ? 'ok' : 'nao'; n++; };
-    const acerta = (noCheiro) => {
-      bastao(); acertos++; marca(true); esconde();
-      P.diz(noCheiro ? cfg.acertaCheiro : cfg.acerta, c); set('pausa', 1.1);
-      root.classList.remove('acertou'); void root.offsetWidth; root.classList.add('acertou');
-      if (n === 2 && !ensinou) { ensinou = true; setTimeout(() => c.cheiro('hessa-brava'), 500); }
+    const dor = (txt) => { bastao(); P.diz(txt, c); root.classList.remove('dor'); void root.offsetWidth; root.classList.add('dor'); };
+    const tok = () => { A.sfx('bastao', .8, () => { A.tone(300, .06, 'square', .08); }); root.classList.remove('tok'); void root.offsetWidth; root.classList.add('tok'); };
+    const marca = (ok) => { if (cont[n]) cont[n].className = ok ? 'ok' : 'nao'; n++; if (ok) acertos++; };
+    const proxima = () => {
+      k++;
+      if (k >= ROT.length) { fim = true; removeEventListener('keydown', kd); cls('guarda'); P.diz(acertos >= 6 ? cfg.fimBom : cfg.fim, c); setTimeout(() => resolve({ acertos, enganado }), BOT() ? 50 : 1600); return; }
+      set('guarda', 1 + Math.random() * 1.3);
     };
     const toque = (e) => {
       if (window.__mgPausa || fim) return;
       if (e && e.target && e.target.closest && e.target.closest('button')) return;
-      if (fase === 'cheiro') acerta(true);
-      else if (fase === 'aberta' || graca > 0) { graca = 0; acerta(false); }
-      else if (fase === 'finge') { enganado++; marca(false); set('bateu', .9); apanha(cfg.finta); }
-      else if (fase === 'guarda') { marca(false); set('bateu', .9); apanha(cfg.apanha); }
+      if (fase === 'vem') {
+        tok(); marca(true); set('pausa', 1.2);
+        P.diz(!viuVinda ? cfg.acertaVinda : cfg.acerta, c); viuVinda = true;
+        if (acertos === 2 && !ensinou) { ensinou = true; setTimeout(() => c.cheiro('hessa-brava'), 600); }
+      } else if (fase === 'isca') { enganado++; marca(false); set('bloqueia', .45); setTimeout(() => dor(cfg.finta), BOT() ? 0 : 280); }
+      else if (fase === 'guarda' || fase === 'cheiro') { marca(false); set('bloqueia', .45); setTimeout(() => dor(cfg.fechada), BOT() ? 0 : 280); }
     };
     root.addEventListener('pointerdown', toque);
     const kd = (e) => { if ((e.code === 'Space' || e.key === 'j' || e.key === 'J') && !e.repeat) { e.preventDefault(); toque(); } };
     addEventListener('keydown', kd);
-    set('guarda', 1.8);
+    set('guarda', 2);
     const loop = (now) => {
       if (!root.isConnected || fim) return;
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (!window.__mgPausa) {
-        t += dt; graca = Math.max(0, graca - dt);
-        if (BOT() && fase === 'cheiro') toque();
+        t += dt;
+        if (BOT() && fase === 'vem' && t > .15) toque();
         if (t >= dur) {
-          if (fase === 'guarda') { if (ROT[k] === 'finta') set('finge', .9); else set('cheiro', CHEIRO); }
-          else if (fase === 'cheiro') set('aberta', ABERTA);
-          else if (fase === 'aberta') { graca = GRACA; esconde(); apanha(cfg.apanha); marca(false); set('pausa', 1.1); }   // ela bate primeiro
-          else if (fase === 'finge') { if (fintas === 1) setTimeout(esconde, 300); P.diz(cfg.fintaVista, c); set('guarda', .6 + Math.random() * .5); ROT[k] = 'real'; }   // não caiu: agora vem o de verdade
-          else if (fase === 'bateu') set('pausa', .5);
+          if (fase === 'guarda') { if (ROT[k] === 'real') set('cheiro', .4); else { set('isca', 1.15); A.hiss(.2, 500, .8, .03); } }
+          else if (fase === 'cheiro') { set('vem', aperto()); A.tone(70, .14, 'sine', .14); A.hiss(.25, 600, .7, .06); }
+          else if (fase === 'vem') { marca(false); set('pausa', 1.1); dor(cfg.apanha); }   // esperou demais: ela bate
+          else if (fase === 'isca') { marca(true); P.diz(cfg.fintaVista, c); viuIsca = true; set('pausa', .9); }
+          else if (fase === 'bloqueia') set('pausa', .9);
           else if (fase === 'pausa') proxima();
         }
       }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame((nn) => { last = nn; loop(nn); });
+    void viuIsca;
   });
 }
 
