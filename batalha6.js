@@ -44,11 +44,11 @@ const SPR = {
     morre: { src: S + 'soldado/morre.webp', frames: 18, fps: 18, refH: 230, go: 253.0, res: 1, cai: 'frente' },
   } },
   escudeiro: { h: HOMEM_H, a: {
-    andar: { src: S + 'escudeiro/andar.webp', frames: 20, fps: 12, refH: 230, go: 236.6, res: 1, loop: true },
-    guarda: { src: S + 'escudeiro/guarda.webp', frames: 15, fps: 9, refH: 230, go: 232.3, res: 1, loop: true },
-    golpe: { src: S + 'escudeiro/golpe.webp', frames: 22, fps: 26, refH: 230, go: 232.1, res: 1, impacto: 11 },
-    apanha: { src: S + 'escudeiro/apanha.webp', frames: 17, fps: 32, refH: 230, go: 235.1, res: 1 },
-    quebra: { src: S + 'escudeiro/quebra.webp', frames: 24, fps: 28, refH: 230, go: 244.5, res: 1 },
+    andar: { src: S + 'escudeiro/andar.webp', frames: 20, fps: 12, refH: 230, go: 236.6, res: 1, esc: 0.78, loop: true },
+    guarda: { src: S + 'escudeiro/guarda.webp', frames: 15, fps: 9, refH: 230, go: 232.3, res: 1, esc: 0.78, loop: true },
+    golpe: { src: S + 'escudeiro/golpe.webp', frames: 22, fps: 26, refH: 230, go: 232.1, res: 1, esc: 0.9, impacto: 11 },
+    apanha: { src: S + 'escudeiro/apanha.webp', frames: 17, fps: 32, refH: 230, go: 235.1, res: 1, esc: 0.84 },
+    quebra: { src: S + 'escudeiro/quebra.webp', frames: 24, fps: 28, refH: 230, go: 244.5, res: 1, esc: 0.84 },
   } },
   arqueiro: { h: HOMEM_H, a: {
     guarda: { src: S + 'arqueiro/guarda.webp', frames: 14, fps: 8, refH: 230, go: 232.1, res: 1, loop: true },
@@ -98,7 +98,7 @@ window.BATALHA6 = function (root, c) {
 
     // ---------- o que o capítulo trouxe
     const fome0 = st.fome || 0, faminto = fome0 >= 60;
-    const hpMax = faminto ? 9 : 12, furia0 = faminto ? 40 : 15;
+    const hpMax = faminto ? 10 : 12, furia0 = faminto ? 40 : 15;
     const caminho = !!st.f.caminho, ikk = (st.af.ikk || 0) >= 2, dorgh = (st.af.dorgh || 0) >= 2;
     const extras = [];
     if (st.f.agua === 'patrulha') extras.push('arqueiro');
@@ -137,7 +137,7 @@ window.BATALHA6 = function (root, c) {
     };
 
     // ---------- estado
-    const K = { tipo: 'kronk', x: 260, dir: 1, est: 'guarda', a: 'guarda', f: 0, t: 0, hp: hpMax, inv: 0, cai: 0, vx: 0 };
+    const K = { tipo: 'kronk', x: 260, dir: 1, est: 'guarda', a: 'guarda', f: 0, t: 0, hp: hpMax, inv: 0, cai: 0, vx: 0, fol: 100, folT: 1, esqT: -9 };
     let furia = furia0, furiaMax = furia0, mortos = 0, golpes = 0, quedas = 0, tempo = 0, fim = false;
     let inimigos = [], flechas = [], parts = [], pocas = [], arcos = [], lento = 0, ensinouCheiro = false, flashB = 0, tela = 0, ondaI = 0, fase = 'luta', fila = [], seta = false, slide = 0, hitstop = 0, shake = 0, shakeM = 0, regen = 0, respT = 0, semLuta = 0;
     const quedasOnda = {}; let facil = 1;
@@ -146,13 +146,13 @@ window.BATALHA6 = function (root, c) {
     // as ondas de cada tela (§9.4 do roteiro)
     const TELAS = [
       [{ lista: ['soldado', 'soldado', 'soldado'], umPorVez: true, dorme: caminho ? 2 : 0 }],
-      [{ lista: ['soldado', 'arqueiro'], ikk: ikk }, { lista: ['escudeiro', 'soldado'] }],
+      [{ lista: ['soldado', 'arqueiro'], ikk: ikk }, { lista: ['escudeiro', 'soldado'].concat(faminto ? ['soldado'] : []), lanca: faminto }],
       [{ lista: ['escudeiro', 'escudeiro', 'arqueiro'].concat(extras), dorgh: dorgh, max: 3 }, { lista: ['simon'] }],
     ];
     const chave = () => tela + ':' + ondaI;
 
     // ---------- criar inimigos
-    const HP = { soldado: 4, escudeiro: 4, arqueiro: 2, simon: 15 };
+    const HP = { soldado: 4, escudeiro: 4, arqueiro: 2, simon: 14 };
     function novo(tipo, i) {
       const lado = tipo === 'arqueiro' ? 1 : (i % 3 === 2 && tela > 0 ? -1 : 1);
       const e = { tipo, x: lado > 0 ? W + 80 + i * 60 : -80 - i * 60, dir: -lado, est: 'andar', a: tipo === 'escudeiro' ? 'andar' : 'andar', f: 0, t: 0, hp: HP[tipo], timer: 1.2 + Math.random(), escudo: 0, morto: false, some: 0, flash: 0 };
@@ -187,7 +187,7 @@ window.BATALHA6 = function (root, c) {
     function anim(ent) { const k = SPR[ent.tipo] || SPR.soldado; return k.a[ent.a] || k.a.guarda; }
     function desenha(ent, alfa = 1) {
       const k = SPR[ent.tipo], a = anim(ent), o = imgs[a.src];
-      const sc = k.h / (a.refH * a.res);
+      const sc = k.h / (a.refH * a.res) * (a.esc || 1);
       const fr = Math.min(a.frames - 1, Math.max(0, Math.floor(ent.f)));
       cx.save(); cx.globalAlpha = alfa; cx.translate(ent.x, 0);
       if (!a.fixo && ent.dir < 0) cx.scale(-1, 1);
@@ -231,47 +231,93 @@ window.BATALHA6 = function (root, c) {
     function faisca(x, y) { for (let i = 0; i < 12; i++) { const ang = Math.random() * Math.PI * 2, sp = 80 + Math.random() * 160; parts.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp * .6, life: .3, age: 0, size: 2 + Math.random() * 2.5, spark: true }); } }
     function juice(forte, leve) { hitstop = forte ? .11 : .06; shake = forte ? .22 : .12; shakeM = (forte ? 14 : 7) * (leve ? .5 : 1); }
 
+    // ---------- alcances (centro a centro, em px do mundo)
+    const ALC = { golpe: 232, pesado: 272 };                         // o Kronk
+    const REACH = { soldado: 210, escudeiro: 240, simon: 230 };      // até onde o golpe deles chega
+    const PARA = { soldado: 168, escudeiro: 192, simon: 182 };       // onde eles param para lutar
+    const DANO = { soldado: 2, escudeiro: 2, simon: 2 };
+    const melee = (e) => e.tipo === 'soldado' || e.tipo === 'escudeiro' || e.tipo === 'simon';
+    let vezAtaque = 0;   // dois inimigos não começam golpe juntos: o próximo espera
+    const proxAcao = (e) => {
+      // o que ele faz quando o tempo acabar: bater (com o suor antes) ou baixar a guarda um instante
+      const cedo = tela === 0 && mortos < 2;
+      if (e.tipo === 'escudeiro') { e.prox = Math.random() < .75 ? 'ataca' : 'espera'; e.timer = 1.6 + Math.random() * 1.4; return; }
+      e.prox = Math.random() < (cedo ? .55 : .68) ? 'ataca' : 'abre';
+      e.timer = (cedo ? 1.9 : 1.15) + Math.random() * (cedo ? 1.1 : 1.0);
+    };
+    let ensinouGuarda = false, ensinouAr = false;
+
+    // ---------- o fôlego do Kronk: bater cansa; bater sem parar não dá
+    const CUSTO = { golpe: 24, pesado: 38, esquiva: 14 };
+    function gasta(qual) {
+      const c = CUSTO[qual] * (furia >= 80 ? .6 : 1);
+      if (K.fol < c) { semAr(); return false; }
+      K.fol -= c; K.folT = 0; return true;
+    }
+    function semAr() {
+      K.folPisca = .5;
+      if (tempo - (semAr.t || -9) > 1.4) { semAr.t = tempo; SOM.respira(.7); }
+      if (!ensinouAr) { ensinouAr = true; legenda(cfg.legendas.ar || 'Ar acabar. Kronk respirar.', 2400); }
+    }
+
     // ---------- o Kronk acerta
     const alvosNaFrente = (alc) => inimigos.filter((e) => !e.morto && e.est !== 'quebra' && (e.x - K.x) * K.dir > -40 && Math.abs(e.x - K.x) < alc).sort((a, b) => Math.abs(a.x - K.x) - Math.abs(b.x - K.x));
     function acertaKronk(pesado) {
       arco(K, pesado, false);
-      const alc = pesado ? 260 : 220;
-      let alvos = alvosNaFrente(alc);
+      let alvos = alvosNaFrente(pesado ? ALC.pesado : ALC.golpe);
       if (!alvos.length) return;
       if (!(pesado && furia >= 80)) alvos = alvos.slice(0, 1);
       alvos.forEach((e) => bate(e, pesado));
     }
+    function bloqueia(e, dir, yImp, forte) { faisca(e.x - dir * 30, yImp); SOM.escudo(); juice(!!forte, !forte); e.x = clamp(e.x + dir * (forte ? 60 : 24), -200, W + 200); }
+    function contra(e) {
+      // ele defende e devolve na hora: o golpe já vem no meio
+      const a = SPR[e.tipo].a.golpe || SPR[e.tipo].a.alto;
+      e.est = 'ataca'; e.contra = true; poe(e, e.tipo === 'simon' ? um(['alto', 'baixo']) : 'golpe', Math.max(0, (anim(e).impacto || 6) - 7)); e.f = Math.max(0, (anim(e).impacto || 6) - 7);
+      SOM.grito(); vezAtaque = tempo + .6; void a;
+    }
     function bate(e, pesado) {
       const yImp = CHAO - HOMEM_H * .6, dir = Math.sign(e.x - K.x) || K.dir;
-      const dano = (n) => {
+      const naSubida = e.est === 'ataca' && e.f < (anim(e).impacto || 99);
+      const dano = (n, cambaleia = true) => {
         e.hp -= n; e.flash = .08; sangue(e.x, yImp, dir); juice(pesado); pesado ? SOM.acertaForte() : SOM.acertaLeve(); SOM.gemido();
-        furia = clamp(furia + (e.est === 'ataca' ? 10 : 4), 0, 100);
-        if (e.est === 'ataca') faisca(e.x, yImp - 30);
+        furia = clamp(furia + (naSubida ? 10 : 5), 0, 100);
+        if (naSubida) faisca(e.x, yImp - 30);
         if (e.hp <= 0) return morre(e, dir);
-        e.x = clamp(e.x + dir * (pesado ? 110 : 50), 60, W - 60);
-        if (e.tipo === 'simon') { e.est = 'apanha'; poe(e, 'apanha'); return; }
-        e.est = 'apanha'; poe(e, 'apanha');
+        e.x = clamp(e.x + dir * (pesado ? 110 : 45), -200, W + 200);
+        if (cambaleia || naSubida) { e.est = 'apanha'; poe(e, 'apanha'); }
       };
       if (e.est === 'dorme') return dano(pesado ? 3 : 1);
+      const aberto = e.est === 'aberto' || e.est === 'andar' || e.est === 'apanha' || naSubida;
       if (e.tipo === 'escudeiro') {
-        if (!pesado) { faisca(e.x - dir * 30, yImp); SOM.escudo(); juice(false, true); e.x = clamp(e.x + dir * 30, 60, W - 60); return; }
-        e.escudo++; faisca(e.x - dir * 30, yImp); SOM.escudo(); juice(true);
+        if (aberto && e.est !== 'andar') return dano(pesado ? 2 : 1);
+        if (!pesado) { bloqueia(e, dir, yImp); if (!ensinouGuarda) { ensinouGuarda = true; legenda(cfg.legendas.guarda, 2600); } return; }
+        e.escudo++; bloqueia(e, dir, yImp, true);
         if (e.escudo >= 2) { e.est = 'quebra'; poe(e, 'quebra'); return; }
-        e.est = 'apanha'; poe(e, 'apanha'); e.x = clamp(e.x + dir * 90, 60, W - 60); return;
+        e.est = 'apanha'; poe(e, 'apanha'); e.x = clamp(e.x + dir * 70, -200, W + 200); return;
       }
       if (e.tipo === 'soldado') {
-        if (e.est === 'guarda') {
-          if (!pesado) { faisca(e.x - dir * 30, yImp); SOM.escudo(); juice(false, true); e.x = clamp(e.x + dir * 40, 60, W - 60); return; }
+        if (!aberto) {
+          if (!pesado) {
+            bloqueia(e, dir, yImp); if (!ensinouGuarda) { ensinouGuarda = true; legenda(cfg.legendas.guarda, 2600); }
+            if (Math.random() < (tela === 0 ? .35 : .55) && tempo > vezAtaque - .3) contra(e);
+            return;
+          }
           return dano(2);   // o pesado quebra a guarda
         }
         return dano(pesado ? 3 : 1);
       }
       if (e.tipo === 'arqueiro') return dano(pesado ? 2 : 1);
       if (e.tipo === 'simon') {
-        if (e.est === 'gesto' || e.est === 'cai') return;
-        const aberto = e.est === 'aberto' || (e.est === 'ataca' && e.f < anim(e).impacto);
-        if (!aberto && Math.random() < (pesado ? .75 : .5)) { e.est = 'desvio'; poe(e, 'desvio'); e.dx = (e.x > K.x ? 1 : -1) * 110; SOM.esquiva(); return; }
-        return dano(aberto ? (pesado ? 3 : 1) : (pesado ? 2 : 1));
+        if (e.est === 'gesto' || e.est === 'cai' || e.est === 'recua') return;
+        const ab = e.est === 'aberto' || naSubida;
+        if (!ab) {
+          // o Simon na guarda não se deixa tocar de leve: desvia ou devolve
+          if (!pesado) { if (Math.random() < .45) { bloqueia(e, dir, yImp); contra(e); } else { e.est = 'desvio'; poe(e, 'desvio'); e.dx = (e.x > K.x ? 1 : -1) * 120; SOM.esquiva(); } return; }
+          if (Math.random() < .5) { e.est = 'desvio'; poe(e, 'desvio'); e.dx = (e.x > K.x ? 1 : -1) * 140; SOM.esquiva(); return; }
+          return dano(2);
+        }
+        return dano(pesado ? 3 : 1);
       }
     }
     function morre(e, dir) {
@@ -283,21 +329,23 @@ window.BATALHA6 = function (root, c) {
 
     // ---------- o Kronk apanha
     function apanhaKronk(de, n) {
-      if (K.est === 'esquiva' && K.inv > 0 && fase === 'luta') { perfeita(); return; }
-      if (K.inv > 0 || K.est === 'cai' || fase !== 'luta') return;
+      if (fase !== 'luta' || K.est === 'cai' || K.est === 'levanta') return;
+      if (K.est === 'esquiva' && K.inv > 0) { if (tempo - K.esqT < .3) perfeita(de); return; }
+      if (K.inv > 0) return;
       n = Math.max(1, Math.round(n * facil));
       K.hp -= n; golpes++; furia = clamp(furia - 10, 0, 100);
       const d = Math.sign(K.x - de.x) || -K.dir;
       sangue(K.x, CHAO - KRONK_H * .62, d); juice(true); SOM.apanha();
       K.dir = -d || K.dir;   // vira para quem bateu
       if (K.hp <= 0) { K.est = 'cai'; poe(K, 'cai'); K.reverso = false; K.cai = 0; quedas++; return; }
-      K.est = 'apanha'; poe(K, 'apanha'); K.inv = .5; K.x = clamp(K.x + d * 60, 60, W - 60);
+      K.est = 'apanha'; poe(K, 'apanha'); K.inv = .6; K.x = clamp(K.x + d * 70, 60, W - 60);
     }
 
-    // a esquiva no último instante: o mundo fica lento, a fúria sobe
-    function perfeita() {
+    // a esquiva no último instante: o mundo fica lento, quem bateu fica aberto, a fúria sobe
+    function perfeita(de) {
+      if (de && melee(de) && !de.morto) { de.est = 'aberto'; poe(de, de.tipo === 'escudeiro' ? 'guarda' : 'aberto'); de.timer = 1.3; de.perf = true; }
       if (lento > 0) return;
-      lento = .5; furia = clamp(furia + 12, 0, 100); SOM.esquiva();
+      lento = .5; furia = clamp(furia + 12, 0, 100); SOM.esquiva(); K.fol = Math.min(100, K.fol + 20);
       parts.push({ x: K.x, y: CHAO - KRONK_H * .6, vx: 0, vy: 0, life: .35, age: 0, size: 120, anel: true });
     }
 
@@ -331,20 +379,29 @@ window.BATALHA6 = function (root, c) {
 
     // ---------- o Kronk, por quadro
     const ocupado = () => ['golpe', 'pesado', 'esquiva', 'apanha', 'cai', 'levanta'].includes(K.est);
-    const podeCancelar = () => { const a = anim(K); return (K.est === 'golpe' || K.est === 'pesado' || K.est === 'esquiva') && a.livre && K.f >= a.livre && !(K.est === 'pesado' && !K.volta); };
+    const podeCancelar = () => { const a = anim(K); return (K.est === 'golpe' || K.est === 'esquiva') && a.livre && K.f >= a.livre; };
     function kronk(dt) {
-      const vel = furia >= 50 ? 1.2 : 1;
+      const cansado = K.fol < 20;
+      const vel = (furia >= 50 ? 1.12 : 1) * (cansado ? .85 : 1);
       if (inp.atkDown) inp.atkT += dt;
-      K.inv = Math.max(0, K.inv - dt);
+      K.inv = Math.max(0, K.inv - dt); K.folPisca = Math.max(0, (K.folPisca || 0) - dt);
+      // o fôlego volta quando ele para de bater
+      K.folT += dt;
+      if (K.folT > .4 && !['golpe', 'pesado'].includes(K.est)) K.fol = Math.min(100, K.fol + (K.est === 'guarda' ? 46 : 36) * (furia >= 80 ? 1.3 : 1) * dt);
       // virar para o inimigo mais perto quando parado
       if (!ocupado() && !inp.esq && !inp.dir) { const e = inimigos.filter((x) => !x.morto).sort((a, b) => Math.abs(a.x - K.x) - Math.abs(b.x - K.x))[0]; if (e && Math.abs(e.x - K.x) < 520) K.dir = e.x > K.x ? 1 : -1; }
       const livre = !ocupado() || podeCancelar();
       if (livre && inp.esquiva) {
-        inp.esquiva = false; K.est = 'esquiva'; poe(K, 'esquiva'); K.inv = .38; K.vx = -K.dir * 380; SOM.esquiva(); return;
+        inp.esquiva = false;
+        if (gasta('esquiva')) { K.est = 'esquiva'; poe(K, 'esquiva'); K.inv = .36; K.esqT = tempo; K.vx = -K.dir * 430; SOM.esquiva(); return; }
       }
       inp.esquiva = false;
-      if (livre && inp.atk === 'golpe') { inp.atk = null; K.est = 'golpe'; poe(K, 'golpe'); K.bateu = false; SOM.golpe(); return; }
-      if (livre && inp.atkDown && inp.atkT >= .18 && K.est !== 'pesado') { inp.atk = null; K.est = 'pesado'; poe(K, 'pesado'); K.bateu = false; K.volta = false; return; }
+      if (livre && inp.atk === 'golpe') { inp.atk = null; if (gasta('golpe')) { K.est = 'golpe'; poe(K, 'golpe'); K.bateu = false; SOM.golpe(); return; } }
+      if (livre && inp.atkDown && inp.atkT >= .18 && K.est !== 'pesado') {
+        inp.atk = null;
+        if (!inp.semAr) { if (gasta('pesado')) { K.est = 'pesado'; poe(K, 'pesado'); K.bateu = false; K.volta = false; return; } inp.semAr = true; }
+      }
+      if (!inp.atkDown) inp.semAr = false;
       if (K.est === 'pesado') {
         const a = anim(K);
         if (!K.volta) {
@@ -379,27 +436,47 @@ window.BATALHA6 = function (root, c) {
         if (avanca(K, dt * 1.5)) { K.reverso = false; K.legLev = false; reergue(); }
         return;
       }
-      // andar
+      // andar (o corpo dos outros é parede)
       const mv = (inp.dir ? 1 : 0) - (inp.esq ? 1 : 0);
       const limD = fase === 'luta' && inimigos.some((e) => !e.morto) ? W - 70 : W + 40;
-      if (mv) { K.dir = mv; K.x = clamp(K.x + mv * 270 * dt, 60, limD); if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt); }
-      else { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
+      if (mv) {
+        K.dir = mv; let nx = clamp(K.x + mv * 270 * dt, 60, limD);
+        inimigos.forEach((e) => { if (e.morto || e.tipo === 'arqueiro') return; const s = Math.sign(e.x - K.x); if (s === mv && Math.abs(e.x - nx) < 120) nx = e.x - s * 120; });
+        K.x = mv > 0 ? Math.max(K.x, Math.min(nx, K.x + 270 * dt)) : Math.min(K.x, Math.max(nx, K.x - 270 * dt));
+        if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt);
+      } else { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
     }
     function reergue() {
       // a onda recomeça na mesma tela, com a fúria do começo
-      const k = chave(); quedasOnda[k] = (quedasOnda[k] || 0) + 1; if (quedasOnda[k] >= 2) facil = .8;
-      K.hp = hpMax; furia = furia0; K.est = 'guarda'; poe(K, 'guarda'); K.inv = 1.2; K.x = 260;
+      const k = chave(); quedasOnda[k] = (quedasOnda[k] || 0) + 1; if (quedasOnda[k] >= 2) facil = .7;
+      K.hp = hpMax; furia = furia0; K.fol = 100; K.est = 'guarda'; poe(K, 'guarda'); K.inv = 1.2; K.x = 260;
       inimigos = inimigos.filter((e) => e.morto && e.some > 0); flechas = [];
       comecaOnda();
+    }
+
+    // ---------- a fila: de cada lado, só o mais perto luta; os outros esperam atrás, cada um no seu lugar
+    function filas() {
+      [-1, 1].forEach((lado) => {
+        inimigos.filter((e) => !e.morto && melee(e) && e.est !== 'dorme' && (Math.sign(e.x - K.x) || 1) === lado).sort((a, b) => Math.abs(a.x - K.x) - Math.abs(b.x - K.x)).forEach((e, k) => { e.fila = k; });
+      });
+    }
+    function anda(e, alvoX, dt, v) {
+      const d = alvoX - e.x;
+      if (Math.abs(d) < 10) return false;
+      const frente = Math.sign(d) === Math.sign(K.x - e.x);
+      e.x += Math.sign(d) * Math.min(Math.abs(d), v * (frente ? 1 : .55) * dt);
+      if (Math.abs(d) > 40 && frente) { if (e.est !== 'andar') { e.est = 'andar'; poe(e, 'andar'); } avanca(e, dt); return true; }
+      if (e.est === 'andar') { e.est = 'guarda'; poe(e, 'guarda'); }
+      return false;
     }
 
     // ---------- os inimigos, por quadro
     function inimigo(e, dt) {
       const a = anim(e), dist = Math.abs(e.x - K.x), lado = Math.sign(K.x - e.x) || 1;
       e.flash = Math.max(0, e.flash - dt);
-      if (e.morto) { if (avanca(e, dt)) e.some += dt; if (e.tipo === 'escudeiro' && e.a === 'apanha' && e.f >= anim(e).frames - 1) { /* fica no chão */ } return; }
+      if (e.morto) { if (avanca(e, dt)) e.some += dt; return; }
       if (e.est === 'dorme') { avanca(e, dt * .5); return; }
-      if (e.est === 'apanha') { if (avanca(e, dt)) { e.est = e.tipo === 'arqueiro' ? 'posto' : 'aberto'; poe(e, e.tipo === 'arqueiro' ? 'guarda' : (e.tipo === 'escudeiro' ? 'guarda' : 'aberto')); e.timer = .8; if (e.tipo === 'escudeiro') e.est = 'guarda'; } return; }
+      if (e.est === 'apanha') { if (avanca(e, dt)) { if (e.tipo === 'arqueiro') { e.est = 'posto'; poe(e, 'guarda'); e.timer = .9; } else { e.est = 'guarda'; poe(e, 'guarda'); proxAcao(e); e.timer = Math.max(e.timer * .6, .7); } } return; }
       if (e.est === 'quebra') { if (avanca(e, dt)) { e.tipo = 'soldado'; e.hp = 3; e.est = 'aberto'; poe(e, 'aberto'); e.timer = 1.2; } return; }
       e.dir = lado;
       if (e.tipo === 'arqueiro') {
@@ -408,47 +485,67 @@ window.BATALHA6 = function (root, c) {
         const ant = e.f; const acabou = avanca(e, dt);
         if (!e.avisou && e.f >= a.aviso) { e.avisou = true; SOM.corda(); }
         if (!e.soltou && ant < a.impacto && e.f >= a.impacto) { e.soltou = true; SOM.flecha(); arco(e, false, true); flechas.push({ x: e.x + lado * 40, y: CHAO - HOMEM_H * .72, vx: lado * 1500, de: e }); }
-        if (acabou) { e.est = 'posto'; poe(e, 'guarda'); e.timer = 2.6 + Math.random() * .8; }
+        if (acabou) { e.est = 'posto'; poe(e, 'guarda'); e.timer = 2.4 + Math.random() * 1; }
         return;
       }
       if (e.tipo === 'simon') return simon(e, dt, dist, lado);
-      const alcance = e.tipo === 'escudeiro' ? 165 : 175;
       if (e.est === 'ataca') {
         const ant = e.f; const acabou = avanca(e, dt);
-        if (ant < a.impacto && e.f >= a.impacto) { arco(e, false, true); if (dist < alcance + 60) apanhaKronk(e, 2); }
-        if (acabou) { e.est = 'aberto'; poe(e, e.tipo === 'escudeiro' ? 'guarda' : 'aberto'); e.timer = e.tipo === 'escudeiro' ? .9 : .8; }
+        if (ant < a.impacto && e.f >= a.impacto) {
+          arco(e, false, true);
+          const pega = Math.abs(e.x - K.x) <= REACH[e.tipo] && (K.x - e.x) * e.dir > 0;
+          if (pega) apanhaKronk(e, e.contra ? 1 : DANO[e.tipo]); else e.errou = true;
+        }
+        if (acabou) { e.est = 'aberto'; poe(e, e.tipo === 'escudeiro' ? 'guarda' : 'aberto'); e.timer = e.errou ? 1.1 : .75; e.errou = false; e.contra = false; }
         return;
       }
-      // não deixa dois inimigos no mesmo lugar
-      const viz = inimigos.find((o) => o !== e && !o.morto && o.tipo !== 'arqueiro' && Math.abs(o.x - e.x) < 110 && Math.abs(o.x - K.x) < dist);
-      if (dist > alcance && !viz) { if (e.est !== 'andar') { e.est = 'andar'; poe(e, 'andar'); } e.x += lado * (e.tipo === 'escudeiro' ? 95 : 150) * dt; avanca(e, dt); return; }
-      if (e.est === 'andar') { e.est = 'guarda'; poe(e, 'guarda'); }
-      if (e.est === 'aberto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = 2 + Math.random(); } return; }
-      e.timer -= dt; avanca(e, dt);
-      if (e.timer <= 0 && !viz && K.est !== 'cai' && K.est !== 'levanta') { e.est = 'ataca'; poe(e, 'golpe'); e.tipo === 'escudeiro' ? SOM.estocada() : SOM.grito(); e.timer = 2 + Math.random() * (e.tipo === 'escudeiro' ? 1.5 : 1); }
+      if (e.est === 'aberto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.perf = false; proxAcao(e); } return; }
+      // o lugar dele na fila
+      const alvoX = K.x - lado * (PARA[e.tipo] + (e.fila || 0) * 165);
+      if (anda(e, alvoX, dt, e.tipo === 'escudeiro' ? 105 : 160)) return;
+      if (e.est !== 'guarda') { e.est = 'guarda'; poe(e, 'guarda'); }
+      if (e.prox == null) proxAcao(e);
+      avanca(e, dt);
+      if ((e.fila || 0) > 0 || dist > PARA[e.tipo] + 60 || K.est === 'cai' || K.est === 'levanta') { e.timer = Math.max(e.timer, .9); return; }
+      e.timer -= dt;
+      // o golpe espera a vez (o suor só sobe quando ele vai mesmo bater)
+      if (e.prox === 'ataca' && e.timer < .6 && tempo < vezAtaque) e.timer = .6;
+      if (e.timer <= 0) {
+        if (e.prox === 'ataca') { e.est = 'ataca'; poe(e, 'golpe'); e.tipo === 'escudeiro' ? SOM.estocada() : SOM.grito(); vezAtaque = tempo + 1.1; }
+        else if (e.prox === 'abre') { e.est = 'aberto'; poe(e, 'aberto'); e.timer = .9; return; }
+        proxAcao(e);
+      }
     }
-    // o Simon: três golpes, cada um com o começo próprio; desvia de metade; o gesto entre a 2ª e a 3ª fase
+    // o Simon: três golpes; na guarda ele não se deixa tocar de leve; abre depois de bater, ou quando o Kronk esquiva na hora
     function simon(e, dt, dist, lado) {
-      const vel = e.fase === 3 ? 1.25 : 1, a = anim(e);
+      const vel = e.fase === 3 ? 1.2 : 1, a = anim(e);
       if (e.est === 'cai') { avanca(e, dt * .7); return; }
-      if (e.est === 'gesto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = 1; } return; }
-      if (e.est === 'desvio') { e.x = clamp(e.x + e.dx * dt * 3, 80, W - 80); if (avanca(e, dt)) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = .5 + Math.random() * .4; } return; }
-      if (e.fase < 3 && e.hp <= 5) {
+      if (e.est === 'gesto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = .9; } return; }
+      if (e.est === 'desvio') { e.x = clamp(e.x + e.dx * dt * 3, 80, W - 80); if (avanca(e, dt)) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = Math.min(e.timer, .45 + Math.random() * .3); } return; }
+      if (e.fase < 3 && e.hp <= 6) {
         // recua, para, bate dois dedos no peito duas vezes
         e.fase = 3; e.est = 'recua'; e.alvoX = clamp(e.x + (e.x > K.x ? 1 : -1) * 260, 120, W - 120);
       }
-      if (e.est === 'recua') { e.dir = lado; e.x += Math.sign(e.alvoX - e.x) * 260 * dt; avanca(e, dt); if (Math.abs(e.alvoX - e.x) < 10) { e.est = 'gesto'; poe(e, 'gesto'); e.timer = 2; sfx('simon-peito', .6, () => { A.tone(160, .1, 'sine', .08); A.tone(160, .1, 'sine', .08, .35); }); } return; }
+      if (e.est === 'recua') { e.dir = lado; e.x += Math.sign(e.alvoX - e.x) * 260 * dt; e.rt = (e.rt || 0) + dt; avanca(e, dt); if (Math.abs(e.alvoX - e.x) < 10 || e.rt > 1.3) { e.est = 'gesto'; poe(e, 'gesto'); e.timer = 2; sfx('simon-peito', .6, () => { A.tone(160, .1, 'sine', .08); A.tone(160, .1, 'sine', .08, .35); }); } return; }
       if (e.est === 'ataca') {
         const ant = e.f; const acabou = avanca(e, dt, vel);
-        if (ant < a.impacto && e.f >= a.impacto) { arco(e, e.fase === 3, true); if (dist < 250) apanhaKronk(e, e.fase === 3 ? 3 : 2); }
-        if (acabou) { e.est = 'aberto'; poe(e, 'aberto'); e.timer = .7; }
+        if (ant < a.impacto && e.f >= a.impacto) {
+          arco(e, e.fase === 3, true);
+          const pega = Math.abs(e.x - K.x) <= REACH.simon && (K.x - e.x) * e.dir > 0;
+          if (pega) apanhaKronk(e, e.contra ? 1 : (e.fase === 3 ? 3 : 2)); else e.errou = true;
+        }
+        if (acabou) {
+          // na terceira fase, às vezes emenda o segundo golpe
+          if (e.fase === 3 && !e.emenda && Math.random() < .5 && K.est !== 'cai') { e.emenda = true; e.contra = false; poe(e, um(['alto', 'estocada', 'baixo'])); SOM.grito(); return; }
+          e.emenda = false; e.est = 'aberto'; poe(e, 'aberto'); e.timer = e.errou ? 1.0 : (e.fase === 3 ? .6 : .8); e.errou = false; e.contra = false;
+        }
         return;
       }
-      if (e.est === 'aberto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = (1.1 + Math.random() * .7) / vel; } return; }
-      if (dist > 195) { if (e.a !== 'andar') poe(e, 'andar'); e.est = 'anda'; e.x += lado * 170 * vel * dt; avanca(e, dt); return; }
+      if (e.est === 'aberto') { e.timer -= dt; avanca(e, dt); if (e.timer <= 0) { e.est = 'guarda'; poe(e, 'guarda'); e.timer = (1 + Math.random() * .7) / vel; } return; }
+      if (dist > PARA.simon + 30) { if (e.a !== 'andar') poe(e, 'andar'); e.est = 'anda'; e.x += lado * 180 * vel * dt; avanca(e, dt); return; }
       if (e.est !== 'guarda') { e.est = 'guarda'; poe(e, 'guarda'); }
       e.timer -= dt; avanca(e, dt);
-      if (e.timer <= 0 && K.est !== 'cai' && K.est !== 'levanta') { e.est = 'ataca'; poe(e, um(['alto', 'estocada', 'baixo'])); SOM.grito(); }
+      if (e.timer <= 0 && K.est !== 'cai' && K.est !== 'levanta') { e.est = 'ataca'; e.contra = false; poe(e, um(['alto', 'estocada', 'baixo'])); SOM.grito(); }
     }
 
     // ---------- as telas
@@ -457,6 +554,7 @@ window.BATALHA6 = function (root, c) {
       const o = TELAS[tela][ondaI];
       // os aliados, fora da tela
       if (o.ikk && !o._ikk && tempo - o._spawn > 3) { const arq = inimigos.find((e) => e.tipo === 'arqueiro' && !e.morto); if (arq) { o._ikk = true; SOM.flechaFora(); arq.hp = 0; morre(arq, 1); mortos--; legenda(cfg.legendas.ikk, 1800); } }
+      if (o.lanca && !o._lanca && tempo - o._spawn > 5) { const sol = inimigos.find((e) => e.tipo === 'soldado' && !e.morto && e.est !== 'dorme' && e.x > K.x); if (sol) { o._lanca = true; SOM.flechaFora(); sol.hp = 0; morre(sol, 1); mortos--; legenda(cfg.legendas.lanca, 2200); } }
       if (o.dorgh && !o._dorgh && tempo - o._spawn > 4) { const esc = inimigos.find((e) => e.tipo === 'escudeiro' && !e.morto && e.est !== 'quebra'); if (esc) { o._dorgh = true; esc.est = 'quebra'; poe(esc, 'quebra'); SOM.acertaForte(); faisca(esc.x, CHAO - 150); legenda(cfg.legendas.dorgh, 1800); } }
       if (fila.length) soltaFila(o, false);
       const vivos = inimigos.filter((e) => !e.morto).length;
@@ -509,7 +607,7 @@ window.BATALHA6 = function (root, c) {
       // o nariz: um instante antes do golpe, o suor frio sobe de quem vai bater
       inimigos.forEach((e) => {
         if (e.morto) return;
-        const ant = (e.tipo === 'arqueiro' ? e.est === 'posto' && e.timer < .7 : (e.est === 'guarda' && e.timer < .55 && e.tipo !== 'simon') || (e.tipo === 'simon' && e.est === 'guarda' && e.timer < .5));
+        const ant = (e.tipo === 'arqueiro' ? e.est === 'posto' && e.timer < .7 : (e.tipo !== 'simon' && e.est === 'guarda' && e.prox === 'ataca' && !(e.fila > 0) && e.timer < .55) || (e.tipo === 'simon' && e.est === 'guarda' && e.timer < .5));
         if (!ant) return;
         if (!ensinouCheiro) { ensinouCheiro = true; legenda(cfg.legendas.cheiro, 2600); }
         const k = clamp(1 - e.timer / (e.tipo === 'arqueiro' ? .7 : .55), 0, 1) * (faminto ? 1 : .8), hh = SPR[e.tipo].h;
@@ -523,6 +621,13 @@ window.BATALHA6 = function (root, c) {
       });
       const pisca = K.inv > 0 && K.est !== 'esquiva' ? (Math.floor(K.inv * 30) % 2 ? .55 : .95) : 1;
       desenha(K, pisca);
+      // o fôlego: um traço no chão, embaixo do Kronk; some quando está cheio
+      if ((K.fol < 99.5 || K.folPisca > 0) && K.est !== 'cai') {
+        const w = 132, x0 = K.x - w / 2, y0 = CHAO + 22, v = K.fol / 100;
+        cx.fillStyle = 'rgba(0,0,0,.45)'; cx.fillRect(x0 - 2, y0 - 2, w + 4, 10);
+        cx.fillStyle = K.folPisca > 0 ? (Math.floor(K.folPisca * 16) % 2 ? '#e2603e' : '#7a2a1a') : v < .2 ? '#c8643a' : '#e8c874';
+        cx.fillRect(x0, y0, w * v, 6);
+      }
       // os arcos dos golpes
       arcos.forEach((a) => {
         const t = a.age / a.life, al = 1 - t, a0 = -1.15, a1 = .55 + t * .25;
@@ -586,9 +691,11 @@ window.BATALHA6 = function (root, c) {
       if (fase === 'fim') dt *= .4;
       tempo += dt; shake = Math.max(0, shake - dt);
       kronk(dt);
+      filas();
       inimigos.forEach((e) => inimigo(e, dt));
       // dois inimigos nunca ocupam o mesmo lugar: o de trás recua um pouco
-      inimigos.forEach((e) => { if (e.morto || e.tipo === 'arqueiro' || e.est === 'ataca') return; inimigos.forEach((o) => { if (o === e || o.morto || o.tipo === 'arqueiro') return; if (Math.abs(o.x - e.x) < 100 && Math.abs(e.x - K.x) > Math.abs(o.x - K.x)) e.x += (Math.sign(e.x - o.x) || 1) * 120 * dt; }); });
+      // ninguém atravessa ninguém: o de trás fica atrás; ninguém entra no corpo do Kronk
+      inimigos.forEach((e) => { if (e.morto || !melee(e) || e.est === 'dorme') return; const s0 = Math.sign(e.x - K.x) || 1; if (Math.abs(e.x - K.x) < 118 && e.est !== 'desvio') e.x = K.x + s0 * 118; inimigos.forEach((o) => { if (o === e || o.morto || !melee(o) || o.est === 'dorme') return; if ((Math.sign(o.x - K.x) || 1) !== s0) return; if (Math.abs(o.x - e.x) < 125 && Math.abs(e.x - K.x) > Math.abs(o.x - K.x)) e.x = o.x + s0 * 125; }); });
       inimigos = inimigos.filter((e) => !(e.morto && e.some > 5));
       flechas.forEach((f) => { f.x += f.vx * dt; if (Math.abs(f.x - K.x) < 46 && K.est !== 'cai') { if (K.inv > 0) { f.fora = true; if (K.est === 'esquiva') perfeita(); } else { apanhaKronk(f.de, 2); f.fora = true; } } if (f.x < -60 || f.x > W + 60) f.fora = true; });
       flechas = flechas.filter((f) => !f.fora);

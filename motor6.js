@@ -124,7 +124,7 @@ const A = {
   fareja() { this.sfx('fareja', .5, () => { this.hiss(.22, 700, .8, .08); this.hiss(.26, 650, .8, .08, .28); }); },
   // mastigar: osso e carne, em ciclos
   mastiga() { this.sfx('mastigar', .55, () => { this.hiss(.14, 1100, .8, .09); this.tone(90, .12, 'sine', .07); this.hiss(.1, 700, .9, .05, .18); }); },
-  respira(k = 0) { this.sfx('respira', .5 - k * .06, () => { this.hiss(1.1 - k * .08, 520, .7, .08 - k * .01); }); },
+  respira(k = 0) { this.sfx('respira', .95 - k * .07, () => { this.hiss(1.1 - k * .08, 520, .7, .08 - k * .01); }); },
   ultimoAr() { this.sfx('ultimo-ar', .55, () => { this.hiss(2.6, 3800, .4, .07, 0, 'highpass'); }); },
   marreta() { this.sfx('marreta', .9, () => { this.tone(60, .5, 'sine', .3, 0, .5); this.hiss(.3, 300, .6, .25, 0, 'lowpass'); }); },
 };
@@ -583,14 +583,9 @@ function renderGestoPagina(p, dir, sonsPag) {
     for (let i = antes; i < els.length; i++) revela(els, i);
     st.feitos['g:' + p.id] = 1; salvar();
     if (g.aoFim) g.aoFim(st, { mudaFome });
-    if (tipo === 'comer' && !g.vazio) {
-      // o sono: a névoa fecha e a próxima idade começa
-      later(() => { Nevoa.fecha(); document.body.classList.add('dorme'); }, 1600);
-      later(() => { document.body.classList.remove('dorme'); irProxima(); }, 4200);
-    } else if (g.escurece) {
-      later(() => document.body.classList.add('apaga'), 2400);
-      later(() => irProxima(), 4600);
-    } else setNext(true);
+    // o sono (ou o escuro) só vem quando o leitor pede a próxima: o texto que subiu com o gesto fica para ler
+    if (tipo === 'comer' && !g.vazio) p._sai = 'dorme'; else if (g.escurece) p._sai = 'apaga';
+    later(() => setNext(true), 700);
   };
   const atraso = Math.min(4200, 900 + antes * 900) * (window.__LEITURA_K || 1);
   later(() => {
@@ -611,14 +606,14 @@ function renderGestoPagina(p, dir, sonsPag) {
       // olhar até parar: a respiração espaça; soltar não desfaz, só pausa
       const N = g.respiros || 5, gaps = Array.from({ length: N }, (_, i) => 1 + i * .45);
       const total = gaps.reduce((a, b) => a + b, 0); let t = 0, prox = 0, feitos = 0;
-      document.body.classList.add('olhando');
+      document.body.classList.add('olhando'); A.duck(true);
       segurador({ icone: 'olhar', classe: 'olhar', rotulo: U('olhar'), dica: tr(g.dica) || U('olharDica'),
         passo: (dt, seg) => { if (seg) t += dt * (BOT() ? 6 : 1); return clamp(t / total, 0, 1); },
         prog: (k, seg) => {
           while (feitos < N && t >= prox) { prox += gaps[feitos]; A.respira(feitos); feitos++; const r = document.createElement('i'); r.className = 'respiro'; box.querySelector('.segura-w') && box.querySelector('.segura-w').appendChild(r); setTimeout(() => r.remove(), 1600); }
           document.body.classList.toggle('olhando-seg', seg);
         },
-        fim: () => { A.ultimoAr(); document.body.classList.remove('olhando', 'olhando-seg'); later(termina, 900); } });
+        fim: () => { A.ultimoAr(); document.body.classList.remove('olhando', 'olhando-seg'); later(() => A.duck(false), 2400); later(termina, 900); } });
     }
   }, dir >= 0 ? atraso : 0);
   return false;
@@ -680,11 +675,11 @@ function escolher(p, id) {
   if (o.depois === 'olhar') {
     later(() => {
       box.innerHTML = ''; let t = 0, prox = 0, feitos = 0; const N = 5, gaps = [1, 1.4, 1.8, 2.3, 2.8], total = gaps.reduce((a, b) => a + b, 0);
-      document.body.classList.add('olhando');
+      document.body.classList.add('olhando'); A.duck(true);
       segurador({ icone: 'olhar', classe: 'olhar', rotulo: U('olhar'), dica: U('olharDica'),
         passo: (dt, seg) => { if (seg) t += dt * (BOT() ? 6 : 1); return clamp(t / total, 0, 1); },
         prog: () => { while (feitos < N && t >= prox) { prox += gaps[feitos]; A.respira(feitos); feitos++; const r = document.createElement('i'); r.className = 'respiro'; const sw = box.querySelector('.segura-w'); sw && sw.appendChild(r); setTimeout(() => r.remove(), 1600); } },
-        fim: () => { A.ultimoAr(); document.body.classList.remove('olhando'); later(() => { box.innerHTML = ''; fecha(); }, 900); } });
+        fim: () => { A.ultimoAr(); document.body.classList.remove('olhando'); later(() => A.duck(false), 2400); later(() => { box.innerHTML = ''; fecha(); }, 900); } });
     }, 500);
   } else if (o.depois === 'golpe') {
     later(() => {
@@ -732,6 +727,16 @@ function renderMinijogo(p) {
 function irProxima() {
   const p = P[st.i];
   if (p && escolhaAtiva(p) && !st.escolhas[p.escolha.id] && !p._revelado) { p._revelado = true; setNext(false); abreEscolha(p); box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+  if (p && p._sai && st.feitos['g:' + p.id] && !p._saindo) {
+    p._saindo = true; setNext(false);
+    if (p._sai === 'dorme') { Nevoa.fecha(); document.body.classList.add('dorme'); later(() => { document.body.classList.remove('dorme'); p._saindo = false; irProxima2(); }, 2600); }
+    else { document.body.classList.add('apaga'); later(() => { p._saindo = false; irProxima2(); }, 2200); }
+    return;
+  }
+  irProxima2();
+}
+function irProxima2() {
+  const p = P[st.i];
   limpaBarriga();
   cuesPend.forEach((c) => c.tocar()); cuesPend = [];
   if (p && p.aoSair && !st.feitos['out:' + p.id]) { st.feitos['out:' + p.id] = 1; p.aoSair(st, { mudaFome }); }
