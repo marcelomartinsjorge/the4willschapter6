@@ -544,7 +544,7 @@ function render(dir = 1) {
   }
   if (p.cheiros && dir >= 0) {
     const els = [...txt.children];
-    p.cheiros.forEach((c) => { if (c.se && !c.se(st)) return; if (gestoPag && c.p != null && c.p >= (gestoPag.antes || 0)) return; later(() => { if (P[st.i] === p) cheiro(typeof c.id === 'function' ? c.id(st) : c.id, c.modo); }, c.ms != null ? c.ms : msAte(els, c.p || 0) + 400); });
+    p.cheiros.forEach((c) => { if (c.se && !c.se(st)) return; if (gestoPag && c.p != null && c.p >= (typeof gestoPag.antes === 'function' ? gestoPag.antes(st) : (gestoPag.antes || 0))) return; later(() => { if (P[st.i] === p) cheiro(typeof c.id === 'function' ? c.id(st) : c.id, c.modo); }, c.ms != null ? c.ms : msAte(els, c.p || 0) + 400); });
   }
   btnPrev.disabled = idxVis(st.i, -1) < 0; btnPrev.textContent = U('voltar');
   btnNext.textContent = p.fim ? U('fim') : U('prox');
@@ -568,7 +568,7 @@ function appendComSom(list, extra, depois) {
 // ----- COMER e OLHAR: a página que só termina com o dedo
 function renderGestoPagina(p, dir, sonsPag) {
   const g = p.comer || p.olhar, tipo = p.comer ? 'comer' : 'olhar';
-  const els = [...txt.children], antes = g.antes || 0;
+  const els = [...txt.children], antes = typeof g.antes === 'function' ? g.antes(st) : (g.antes || 0);
   // os sons dos parágrafos visíveis seguem a regra normal; os dos escondidos tocam quando aparecem
   sonsPag.forEach((it) => {
     const k = it.p == null ? 0 : (it.p < 0 ? Math.max(0, els.length + it.p) : Math.min(els.length - 1, it.p));
@@ -831,6 +831,8 @@ async function resumo() {
   mostraPontos(pt, null); enviaPontos(pt).then((srv) => { if (srv) mostraPontos(pt, srv); });
   const R = L.resumo(st, LANG);
   $('#rsFrase').textContent = R.frase;
+  const pil = $('#rsPilares');
+  if (pil) pil.innerHTML = R.pilares && R.pilares.length ? `<p class="eyebrow">${esc(R.pilaresT)}</p>` + R.pilares.map((x) => `<div class="rs-pilar"><h4>${esc(x.titulo)}</h4><p class="feito">${esc(x.feito)}</p>${x.volta ? `<p class="volta">${esc(x.volta)}</p>` : ''}</div>`).join('') : '';
   const rv = R.revela;
   $('#rsRevela').innerHTML = !rv ? '' : `<div class="kcard"><div class="kimg" style="background-image:url('${rv.img}')"></div><div class="ktx"><p class="eyebrow">${esc(rv.olho)}</p><h3>${esc(rv.nome)}</h3><p class="ksub">${esc(rv.titulo)}</p>${[].concat(rv.texto).map((t) => `<p class="ktexto">${esc(t)}</p>`).join('')}</div></div>`;
   $('#rsRevela').classList.toggle('card', !!rv);

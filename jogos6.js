@@ -101,6 +101,7 @@ function faro(root, c) {
     root.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') nz.dentro = false; });
     ajuda.textContent = toque ? (en ? 'Hold your finger where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o dedo onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.')
       : (en ? 'Hold the click (or space) where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o clique (ou o espaço) onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.');
+    let etapa2 = false;
     if (cfg.pergunta) perg.textContent = T2(cfg.pergunta); else perg.remove();
 
     // as fontes de cheiro
@@ -162,6 +163,17 @@ function faro(root, c) {
         A.sfx('cavar', .6, () => A.hiss(.6, 400, .6, .12, 0, 'lowpass'));
         f.el.classList.add('certo');
         return termina({ escolha: f.id, cheirou: fontes.filter((x) => x.feito).map((x) => x.id), pontos: { A: 1500, B: 300, C: 600 }[f.id] || 500 }, 1100);
+      }
+      if (f.usado) return;
+      if (f.alvo && cfg.pergunta2 && !etapa2) {
+        // a segunda pergunta: o mesmo nariz, outra coisa para achar
+        etapa2 = true; f.alvo = false; f.usado = true;
+        f.el.classList.add('certo'); A.fareja && A.fareja();
+        if (f.texto) P.diz(f.texto, c, 'alvo');
+        fontes.forEach((x) => { if (x.alvo2) x.alvo = true; });
+        perg.classList.remove('troca'); void perg.offsetWidth; perg.classList.add('troca');
+        perg.textContent = T2(cfg.pergunta2);
+        return;
       }
       if (f.alvo) {
         f.el.classList.add('certo'); A.fareja && A.fareja();

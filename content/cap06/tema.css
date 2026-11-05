@@ -444,3 +444,14 @@ body.mg-fome #mg .j6-bg { filter: saturate(calc(1 - var(--fome) * .9)); }
 #mg.jg-treino.tok .tr-tok { animation: trDor .35s ease-out; }
 #mg.jg-treino.tok .tr-cena { animation: trTreme .22s; }
 #mg.jg-treino.dor .tr-cena { animation: trTreme .3s; }
+/* faro: a segunda pergunta entra */
+.fr-perg.troca { animation: frTroca .9s ease; }
+@keyframes frTroca { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: none; } }
+/* tela final: os três pilares */
+.rs-pilares { margin: 18px 0 22px; }
+.rs-pilares .eyebrow { margin: 0 0 10px; }
+.rs-pilar { padding: 14px 16px; margin: 0 0 10px; border-left: 3px solid var(--gold-hot, #e8b74a); background: rgba(255,190,110,.05); border-radius: 0 6px 6px 0; }
+.rs-pilar h4 { margin: 0 0 6px; font-family: var(--serif-d, serif); font-weight: 500; font-size: clamp(17px, 1.6vw, 20px); color: #ffe2b0; letter-spacing: .02em; }
+.rs-pilar p { margin: 0; line-height: 1.5; }
+.rs-pilar .feito { color: #f0e2cc; }
+.rs-pilar .volta { margin-top: 4px; color: #c9b79c; font-style: italic; }

@@ -50,6 +50,7 @@ const AV = {
   dorgh: T('Dorgh vai lembrar disso.', 'Dorgh will remember this.'),
   gup: T('Gup vai lembrar disso.', 'Gup will remember this.'),
   velho: T('{VELHO} vai lembrar disso.', '{VELHO} will remember this.'),
+  pira: T('O Pira vai lembrar disso.', 'The Pyre will remember this.'),
 };
 
 // as fogueiras do fim: o que sobra perto do fogo do Kronk
@@ -163,6 +164,7 @@ window.LIVRO = {
     ferro: { nome: T('cheiro de ferro andar', 'iron-walk smell'), linha: T('Ferro e cavalo e homem. Vir do leste.', 'Iron and horse and men. Come from east.') },
     laje: { nome: T('cheiro de Laje', 'Slab smell'), linha: T('Fruta de cacto passada, seiva, graxa cinza. E homem. Homem velho.', 'Cactus fruit gone bad, tree sap, grey grease. And man. Old man.') },
     'hessa-brava': { rosto: 'hessa-jovem', nome: T('cheiro de Hessa brava', 'Hessa-angry smell'), linha: T('Suor, rápido. Vir antes do pau.', 'Sweat, quick. Come before stick.') },
+    hessa: { rosto: 'hessa-jovem', nome: T('cheiro de mão que dar', 'giving-hand smell'), linha: T('Cinza e osso. Mão pôr carne na boca de Kronk.', 'Ash and bone. Hand put meat in Kronk mouth.') },
     ikk: { rosto: 'ikk', nome: T('cheiro de Ikk', 'Ikk smell'), linha: T('Boca cheirar fruta passada. Nos pequeno. Em Kronk, não.', 'Mouth smell of fruit gone bad. On small ones. Not on Kronk.') },
     assobio: { nome: T('cheiro de Assobio', 'Whistle smell'), linha: T('Ferro, cavalo, óleo de lâmina. E uma coisa que num nascer na areia. Onde ir, Grakh cair.', 'Iron, horse, blade oil. And something that not grow in sand. Where it go, Grakh fall.') },
     'kronk-pequeno': { rosto: 'gup', nome: T('cheiro de Kronk pequeno', 'small-Kronk smell'), linha: T('Igual Kronk. Pequeno. Leite por cima.', 'Same as Kronk. Small. Milk on top.') },
@@ -177,15 +179,12 @@ window.LIVRO = {
   faro: {
     // a comida que a fome traz (aparece em qualquer faro de procura, com fome alta)
     isca: { notas: [T('Carne.', 'Meat.'), T('Velha. Mosca.', 'Old. Flies.'), T('§CARNE.', '§MEAT.')], nao: T('Barriga querer. Nariz num querer.', 'Belly want. Nose not want.') },
-    f1: { modo: 'alvo', img: IMG('k1-festa'), pergunta: T('Barriga querer. Onde?', 'Belly want. Where?'), fios: [
+    f1: { modo: 'alvo', img: IMG('k1-festa'), pergunta: T('Barriga querer. Onde?', 'Belly want. Where?'), pergunta2: T('Muita mão. Uma mão dar. Qual?', 'Many hands. One hand give. Which?'), fios: [
       { id: 'fumaca', cor: '#9a948c', ate: [0.86, 0.14], larg: 16, notas: [T('Fumaça.', 'Smoke.'), T('Madeira queimar.', 'Wood burn.')], nao: T('Fumaça num encher barriga.', 'Smoke not fill belly.') },
-      { id: 'gente', cor: '#b0715a', ate: [0.5, 0.62], larg: 16, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.')], nao: T('Mão grande num dar. Mão grande segurar.', 'Big hands not give. Big hands hold.') },
+      { id: 'gente', cor: '#b0715a', ate: [0.89, 0.4], larg: 16, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.'), T('Segurar.', 'Hold.')], nao: T('Mão grande num dar. Mão grande segurar.', 'Big hands not give. Big hands hold.') },
+      { id: 'gente2', cor: '#b0715a', ate: [0.67, 0.5], larg: 16, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.'), T('Fumaça.', 'Smoke.')], nao: T('Mão de fumaça. Num dar.', 'Hand of smoke. Not give.') },
+      { id: 'mao', cor: '#b0715a', ate: [0.51, 0.6], larg: 16, alvo2: true, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.'), T('Cinza e osso.', 'Ash and bone.')], cheiro: 'hessa', texto: T('Essa.', 'This one.'), nao: T('Mão num encher barriga.', 'Hands not fill belly.') },
       { id: 'gordura', cor: '#e8b74a', ate: [0.62, 0.3], larg: 26, forte: true, alvo: true, notas: [T('Quente.', 'Warm.'), T('Gordura.', 'Fat.')], texto: T('Gordura.', 'Fat.') },
-    ] },
-    f2: { modo: 'alvo', img: IMG('k5-morro'), pergunta: T('Um cheiro num ser igual os outro. Qual?', 'One smell not same as others. Which?'), fios: [
-      { id: 'sangue', cor: '#c0392b', ate: [0.3, 0.45], larg: 20, notas: [T('Sangue.', 'Blood.'), T('Grakh.', 'Grakh.'), T('Muito.', 'Much.')], nao: T('Sangue de Grakh. Kronk conhecer esse.', 'Grakh blood. Kronk know this one.') },
-      { id: 'ferro', cor: '#8b8f96', ate: [0.8, 0.33], larg: 20, notas: [T('Ferro.', 'Iron.'), T('Cavalo.', 'Horse.'), T('Homem.', 'Man.')], cheiro: 'ferro', nao: T('Ferro andar. Kronk conhecer esse.', 'Iron walk. Kronk know this one.') },
-      { id: 'assobio', cor: '#9fb4c8', ate: [0.6, 0.29], larg: 12, fino: true, alvo: true, anda: true, notas: [T('Ferro.', 'Iron.'), T('Cavalo.', 'Horse.'), T('Uma coisa que num nascer na areia.', 'One thing that not grow in sand.')], texto: T('Um cheiro diferente.', 'One smell different.') },
     ] },
     f3: { modo: 'sequencia', img: IMG('k6-parede'), fios: [
       { id: 'sangue', cor: '#c0392b', ate: [0.18, 0.86], larg: 20, t: 0, notas: [T('Sangue.', 'Blood.')] },
@@ -285,7 +284,7 @@ window.LIVRO = {
 
     { id: 'k1a', zona: 'festa', nevoa: NEVOA[1], fundo: { img: IMG('k1-festa'), dim: .45, lado: 'dir', clima: 'brasas', foco: '40% 50%' },
       texto: [T('Fumaça.', 'Smoke.'), T('Gordura.', 'Fat.'), T('Mão grande.', 'Big hands.')],
-      minijogo: 'faro', jogoId: 'f1', mgDica: T('Cheire. Ache a comida.', 'Smell. Find the food.'),
+      minijogo: 'faro', jogoId: 'f1', mgDica: T('Cheire. Ache a comida. Depois, a mão.', 'Smell. Find the food. Then, the hand.'),
       depois: [] },
 
     { id: 'k1b', zona: 'festa', nevoa: NEVOA[1] - .1, fundo: { img: IMG('k1-festa'), dim: .4, lado: 'dir', clima: 'brasas' },
@@ -469,10 +468,11 @@ window.LIVRO = {
       ] },
 
     { id: 'k5b', zona: 'morro', nevoa: NEVOA[5], fundo: { img: IMG('k5-morro'), dim: .55, lado: 'dir', clima: 'poeira' },
-      texto: [T('Cheiro subir do lá embaixo.', 'Smell come up from down there.')],
-      minijogo: 'faro', jogoId: 'f2',
-      depois: [
-        T('Um cheiro diferente. Ferro, e cavalo, e óleo de lâmina. E uma coisa que num nascer na areia.', 'One smell different. Iron, and horse, and oil of blade. And one thing that not grow in sand.'),
+      texto: [
+        T('Cheiro subir do lá embaixo.', 'Smell come up from down there.'),
+        T('Sangue. Grakh. Muito.', 'Blood. Grakh. Much.'),
+        { t: T('Ferro andar. Kronk conhecer esse.', 'Iron walk. Kronk know this one.'), cheiro: 'ferro' },
+        T('No meio, um cheiro fino. Ferro, e cavalo, e óleo de lâmina. E uma coisa que num nascer na areia.', 'In the middle, one thin smell. Iron, and horse, and oil of blade. And one thing that not grow in sand.'),
       ] },
 
     // o Assobio: o Kronk vê de onde o cheiro vem (para saber o cheiro dela, ele precisa ter visto)
@@ -626,13 +626,20 @@ window.LIVRO = {
       cartao: ID(8, T('A Barriga Falar', 'Belly Speak'), '21 secas', '21 dry seasons') },
 
     // ---------- PRIMEIRO SOL
-    { id: 'k8a', zona: 'vazio', fundo: { img: IMG('k8-acordar'), dim: .4, lado: 'dir' },
+    { id: 'k8a', zona: 'vazio', fundo: (st) => ({ img: IMG(st.escolhas.gup === 'ficar' ? 'k8-gup' : 'k8-acordar'), dim: .4, lado: 'dir' }),
       aoEntrar: (st) => { st.f.fomeOn = true; st.fome = 55; },
-      sons: [{ fn: (A) => A.ronco(.8), p: 1 }],
+      sons: [{ fn: (A) => A.ronco(.8), p: 1 }, { sfx: 'respira', p: 4, v: .55 }],
       texto: [
         V('D01', T('Kronk acordar. Uma coisa errada. Kronk cheirar tudo antes de abrir o olho. Fumaça, pouca. Suor, muito. Bicho, nenhum.', 'Kronk wake. Something wrong. Kronk smell all around before open eyes. Smoke, little. Sweat, much. Beast, none.')),
         T('§GRRUM.', '§GRRUM.'),
         V('D02', T('Barriga falar. Barriga nunca falar antes. A vida toda de Kronk, quieta. Agora falar.', 'Belly speak. Belly never speak before. All Kronk life, quiet. Now speak.')),
+        (st) => ({
+          ficar: T('Gup dormir na barriga de Kronk. Barriga falar. Gup acordar. Gup pesado agora. Gup ter dente.', 'Gup sleep on Kronk belly. Belly speak. Gup wake. Gup heavy now. Gup have teeth.'),
+          erguer: T('Cheiro de Gup no fogo do lado. Leite, num ter mais. Gup cheirar areia.', 'Gup smell at the next fire. Milk, no more. Gup smell of sand.'),
+          devolver: T('Cheiro de Gup longe, no fogo da mãe. Kronk achar esse cheiro no meio de todos.', 'Gup smell far, at the mother fire. Kronk find this smell in the middle of all.'),
+        }[st.escolhas.gup] || T('Cheiro de Gup longe, no fogo da mãe.', 'Gup smell far, at the mother fire.')),
+        T('Hessa respirar perto. Curto. Fazer som no fim, igual areia em couro.', 'Hessa breathe near. Short. Make sound at the end, like sand on hide.'),
+        { t: T('Cheiro de Hessa: cinza e osso. E cheiro de {DORMIR}, pouco.', 'Hessa smell: ash and bone. And smell of {DORMIR}, little.'), cheiro: 'dormir' },
       ] },
 
     { id: 'k8b', zona: 'vazio', fome: 3, fundo: { img: IMG('k8-fogueiras'), dim: .45, clima: 'poeira' },
@@ -863,11 +870,12 @@ window.LIVRO = {
         se(temCarne21, T('Carne ficar na mão de Hessa.', 'Meat stay in Hessa hand.')),
         se((st) => !temCarne21(st), T('Kronk num ter nada pra dar. Kronk dar a mão. Hessa segurar a mão.', 'Kronk have nothing to give. Kronk give hand. Hessa hold hand.')),
         se((st) => st.escolhas.agua21 === 'odre', T('Hessa beber do odre. Pouco.', 'Hessa drink from skin. Little.')),
+        T('Hessa olhar Kronk muito.', 'Hessa look at Kronk long.'),
         T('— Quem ser o Maior?', '— Who be Biggest?'),
       ],
       escolha: { id: 'p21h', pergunta: T('Responder a Hessa', 'Answer Hessa'), opcoes: [
-        { id: 'kronk', fala: true, voz: 'C-kronk', txt: T('KRONK.', 'KRONK.'), aoEscolher: (st) => { if (mesmaResposta(st)) st.af.hessa++; }, resultado: [T('— Todo mundo dizer. Ainda.', '— Everybody say. Still.')] },
-        { id: 'naosabe', fala: true, voz: 'C-naosabe', txt: T('KRONK NUM SABER.', 'KRONK NOT KNOW.'), aoEscolher: (st) => { if (mesmaResposta(st)) st.af.hessa++; }, resultado: [T('— Hessa num saber também.', '— Hessa not know too.')] },
+        { id: 'kronk', fala: true, voz: 'C-kronk', txt: T('KRONK.', 'KRONK.'), aoEscolher: (st) => { if (mesmaResposta(st)) st.af.hessa++; }, resultado: (st) => [T('— Todo mundo dizer. Ainda.', '— Everybody say. Still.'), ...(crenca(st.escolhas.p7) === 'nao' ? [T('— Pequeno, Kronk num saber.', '— Small, Kronk not know.')] : [])] },
+        { id: 'naosabe', fala: true, voz: 'C-naosabe', txt: T('KRONK NUM SABER.', 'KRONK NOT KNOW.'), aoEscolher: (st) => { if (mesmaResposta(st)) st.af.hessa++; }, resultado: (st) => [T('— Hessa num saber também.', '— Hessa not know too.'), ...(crenca(st.escolhas.p7) === 'sim' ? [T('— Pequeno, Kronk saber.', '— Small, Kronk know.')] : [])] },
         { id: 'hessa', fala: true, txt: T('HESSA.', 'HESSA.'), resultado: [T('Hessa bater na cabeça de Kronk. Sem força.', 'Hessa hit Kronk head. No strength.'), T('— Burro.', '— Stupid.')] },
       ] } },
 
@@ -893,11 +901,20 @@ window.LIVRO = {
         T('Hessa bater no peito de Kronk c’a mão. Última vez.', 'Hessa hit Kronk chest with hand. Last time.'),
         V('D20', T('Num pesar nada.', 'Weigh nothing.')),
         T('Hessa respirar. Respirar menos.', 'Hessa breathe. Breathe less.'),
+        // com a relação boa, ela fala a língua inteira, ao Aheryn, e o Kronk só guarda o som; com a relação ruim ela não diz nada dele
+        se((st) => !['fria', 'hostil'].includes(faixa5(st)) && adeus(st) !== 'nome', T('Hessa falar comprido. Kronk entender pouco.', 'Hessa speak long. Kronk understand little.')),
+        se((st) => !['fria', 'hostil'].includes(faixa5(st)) && adeus(st) === 'nome', T('Hessa falar comprido. Kronk lembrar da palavra Aheryn. Hessa falar quando Kronk pequeno.', 'Hessa speak long. Kronk remember the word Aheryn. Hessa say when Kronk small.')),
+        se((st) => faixa5(st) === 'confianca' && adeus(st) === 'cuide', T('— Fiz o que você pediu, Aheryn. Ele está grande.', '— I did what you asked, Aheryn. He is big.')),
+        se((st) => faixa5(st) === 'confianca' && adeus(st) !== 'cuide', T('— Ele está grande, Aheryn. Comeu bem enquanto teve.', '— He is big, Aheryn. He ate well while there was food.')),
+        se((st) => faixa5(st) === 'respeito' && adeus(st) === 'cuide', T('— Fiz o que você pediu, Aheryn. Ele está de pé.', '— I did what you asked, Aheryn. He is standing.')),
+        se((st) => faixa5(st) === 'respeito' && adeus(st) !== 'cuide', T('— Ele está de pé, Aheryn. Foi o que combinamos.', '— He is standing, Aheryn. It is what we agreed.')),
+        se((st) => faixa5(st) === 'neutra', T('— Ele está vivo, Aheryn.', '— He is alive, Aheryn.')),
         V('D21', T('Kronk olhar até parar.', 'Kronk look until it stop.')),
+        se((st) => !['fria', 'hostil'].includes(faixa5(st)), T('Kronk guardar o som. Igual guarda cheiro.', 'Kronk keep the sound. Like keep smell.')),
         T('Último ar fazer som. Sss. Água em pedra quente.', 'Last breath make sound. Sss. Water on hot stone.'),
         V('D22', T('Hessa morrer c’o som do nome dela.', 'Hessa die with sound of Hessa name.')),
       ],
-      olhar: { antes: 3, dica: T('Olhe até parar.', 'Look until it stops.') } },
+      olhar: { antes: (st) => (['fria', 'hostil'].includes(faixa5(st)) ? 3 : 5), dica: T('Olhe até parar.', 'Look until it stops.') } },
 
     { id: 'k8q', zona: 'frio', fundo: { img: IMG('k8-mao-hessa'), dim: .45, mascara: MASK('k8-mao-hessa') },
       texto: (st) => (temCarne21(st) ? [
@@ -992,16 +1009,17 @@ window.LIVRO = {
         V('D27', T('Bicho ferido levantar.', 'Hurt beast get up.')),
       ],
       escolha: { id: 'rangido', pergunta: T('O Rangido', 'The Creak'), opcoes: [
-        { id: 'olhar', gesto: true, txt: T('Olhar até parar.', 'Look until it stops.'), depois: 'olhar',
+        { id: 'olhar', gesto: true, txt: T('Olhar até parar.', 'Look until it stops.'), depois: 'olhar', aviso: AV.pira,
           resultado: (st) => [
             T('Kronk ajoelhar. Homem olhar Kronk. Homem num desviar o olho.', 'Kronk kneel. Man look at Kronk. Man not look away.'),
             T('Mão do homem ir pro peito. Dois dedo. Bater uma vez.', 'Man hand go to chest. Two fingers. Hit one time.'),
             T('Num bater outra.', 'Not hit again.'),
             { t: T('Kronk olhar até parar.', 'Kronk look until it stop.'), voz: 'D28', cheiro: 'dormir' },
+            T('Igual Hessa.', 'Like Hessa.'),
             T('Um ferro no cavalo correr pro leste. Ferro novo. Ferro do pão.', 'One iron on horse run east. Young iron. Iron of the bread.'),
             T('Kronk ver. Kronk deixar ir.', 'Kronk see. Kronk let go.'),
           ] },
-        { id: 'acabar', gesto: true, txt: T('Acabar.', 'Finish it.'), depois: 'golpe',
+        { id: 'acabar', gesto: true, txt: T('Acabar.', 'Finish it.'), depois: 'golpe', aviso: AV.pira,
           resultado: [
             T('Maça descer. Homem num olhar mais nada.', 'Club come down. Man not look at nothing more.'),
             T('Barriga quieta. Pouco.', 'Belly quiet. Little.'),
@@ -1018,7 +1036,11 @@ window.LIVRO = {
         se((st) => !dorghVivo(st), T('Dorgh num voltar.', 'Dorgh not come back.')),
         se(dorghVivo, T('Dorgh voltar c’Kronk. Dorgh cheirar sangue. Suor frio, não.', 'Dorgh come back with Kronk. Dorgh smell of blood. Not cold sweat.')),
         T('Grakh olhar Kronk. Num igual ontem. Igual quando Kronk pequeno, nas mão.', 'Grakh look at Kronk. Not like yesterday. Like when Kronk small, on the hands.'),
-        T('Uns bater no peito quando Kronk passar.', 'Some hit chest when Kronk pass.'),
+        se((st) => st.escolhas.rangido !== 'olhar', T('Muitos bater no peito quando Kronk passar. Olhar a maça de Kronk.', 'Many hit chest when Kronk pass. Look at Kronk club.')),
+        se((st) => st.escolhas.rangido === 'olhar', T('Uns bater no peito quando Kronk passar. Uns num bater. Esses ver Kronk ajoelhar pro ferro.', 'Some hit chest when Kronk pass. Some not hit. Those see Kronk kneel for the iron.')),
+        se((st) => dorghVivo(st) && st.escolhas.rangido === 'olhar', T('— Kronk ajoelhar pro ferro.', '— Kronk kneel for the iron.')),
+        se((st) => dorghVivo(st) && st.escolhas.rangido === 'olhar', T('Dorgh cuspir na areia. Andar do lado de Kronk igual.', 'Dorgh spit on sand. Walk beside Kronk all the same.')),
+        se((st) => dorghVivo(st) && st.escolhas.rangido !== 'olhar', T('— Maça boa.', '— Good club.')),
         se((st) => af(st, 'velho') >= 1, T('{VELHO} ver Kronk vir. {VELHO} num cuspir.', '{VELHO} see Kronk come. {VELHO} not spit.')),
         se((st) => af(st, 'velho') >= 1, T('— Agora. Agora vir.', '— Now. Now come.')),
       ] },
@@ -1030,6 +1052,8 @@ window.LIVRO = {
           T('Os velho falar. Norte. Ficar. Falar.', 'Old ones talk. North. Stay. Talk.')),
         T('Grakh num ter palavra pra sair do deserto.', 'Grakh have no word for leave the desert.'),
         T('Todo mundo olhar Kronk.', 'All look at Kronk.'),
+        se((st) => st.escolhas.rangido === 'olhar', T('Nariz de Kronk ainda ter o Rangido. Ferro. Óleo de lâmina. Homem.', 'Kronk nose still have the Creak. Iron. Blade oil. Man.')),
+        se((st) => st.escolhas.rangido !== 'olhar', T('Maça do lado de Kronk. Cabelo de homem ainda na pedra. Kronk num limpar.', 'Club beside Kronk. Man hair still on the stone. Kronk not clean it.')),
         se((st) => af(st, 'gup') >= 1, T('Gup subir no colo de Kronk.', 'Gup climb into Kronk lap.')),
         se((st) => af(st, 'gup') >= 1, T('— Quem ser o Maior?', '— Who be Biggest?')),
       ],
@@ -1068,7 +1092,7 @@ window.LIVRO = {
 
   // ---------------------------------------------------------------- pontuação escondida (cap06)
   pontos: (st) => {
-    const f = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7'].reduce((a, k) => a + (J(st, k).pontos || 0), 0);
+    const f = ['f1', 'f3', 'f4', 'f5', 'f6', 'f7'].reduce((a, k) => a + (J(st, k).pontos || 0), 0);
     const t = Math.round(450 * (J(st, 'treino').acertos || 0));
     const q = (J(st, 'quieto').pontos || 0) + (J(st, 'tocha').pontos || 0);
     const b = (st.f.batalha && st.f.batalha.pontos) || 0;
@@ -1093,9 +1117,31 @@ window.LIVRO = {
         t(T('O sentinela com quem ele tinha dividido o pão cavalgou até Redom sem parar. Laura D’Orrose ouviu o relato inteiro sem dizer nada. Depois pediu os mapas da Boca Seca.', 'The young sentry he had shared his bread with rode to Redom without stopping. Laura D’Orrose heard the whole report without a word. Then she asked for the maps of the Dry Mouth.')),
       ],
     };
+    // os três pilares: o que o jogador deve lembrar ao fechar o capítulo
+    const RESP = { kronk: '“KRONK.”', naosabe: '“KRONK NUM SABER.”', hessa: '“HESSA.”', lua: '“DIA COMIDO SER LUA.”' };
+    const respEN = { '“KRONK NUM SABER.”': '“KRONK NOT KNOW.”', '“DIA COMIDO SER LUA.”': '“DAY EATEN BE MOON.”' };
+    const resp = (id) => { const r = RESP[id]; return lang === 'en' && respEN[r] ? respEN[r] : r; };
+    const pc = st.f.partilhou || 'boca';
+    const pilares = [
+      { titulo: t(T('Aos onze, a carne', 'At eleven, the meat')),
+        feito: t({ ikk: T('Você pôs a carne toda na mão da Ikk.', 'You put all the meat in Ikk’s hand.'), rasgar: T('Você rasgou a carne e deu metade à Ikk.', 'You tore the meat and gave Ikk half.'), boca: T('Você comeu a carne toda, com a Ikk olhando.', 'You ate all the meat, with Ikk watching.') }[pc]),
+        volta: t({ ikk: T('Dez secas depois, na fila do poço, ela saiu do lugar e deu a vez a você.', 'Ten dry seasons later, in the line at the well, she stepped out and gave you her turn.'), rasgar: T('Dez secas depois, na fila do poço, ela cheirou o seu pescoço e voltou para o lugar dela.', 'Ten dry seasons later, in the line at the well, she smelled your neck and went back to her place.'), boca: T('Dez secas depois, na fila do poço, ela não saiu do lugar.', 'Ten dry seasons later, in the line at the well, she did not move.') }[pc]) },
+    ];
+    if (st.escolhas.p7 && st.escolhas.p21h) {
+      const muda = crenca(st.escolhas.p7) !== 'outro' && crenca(st.escolhas.p21h) !== 'outro' && !mesmaResposta(st);
+      const volta = [mesmaResposta(st) ? t(T('A Hessa ouviu a mesma resposta duas vezes.', 'Hessa heard the same answer twice.'))
+        : st.escolhas.p21h === 'hessa' ? t(T('Ela bateu na sua cabeça, sem força.', 'She hit your head, with no strength.'))
+          : muda ? t(T('Ela lembrou o que você tinha dito aos sete.', 'She remembered what you had said at seven.')) : null];
+      if (st.escolhas.p21) volta.push((lang === 'en' ? 'On the last night, Gup asked. You answered ' : 'Na última noite, quem perguntou foi o Gup. Você respondeu ') + resp(st.escolhas.p21));
+      pilares.push({ titulo: t(T('“Quem ser o Maior?”', '“Who be Biggest?”')),
+        feito: (st.escolhas.p7 === 'peito' ? (lang === 'en' ? 'At seven, Hessa asked and you hit your chest.' : 'Aos sete, a Hessa perguntou e você bateu no peito.') : (lang === 'en' ? 'At seven, you answered Hessa ' : 'Aos sete, você respondeu à Hessa ') + resp(st.escolhas.p7)) + (lang === 'en' ? ' At twenty-one, ' : ' Aos vinte e um, ') + resp(st.escolhas.p21h),
+        volta: volta.filter(Boolean).join(' ') });
+    }
+    if (st.escolhas.rangido) pilares.push({ titulo: t(T('O Rangido no chão', 'The Creak on the ground')),
+      feito: st.escolhas.rangido === 'olhar' ? t(T('Você olhou até ele parar, como tinha olhado a Hessa.', 'You looked until he stopped, as you had looked at Hessa.')) : t(T('Você não deixou o bicho ferido levantar.', 'You did not let the hurt beast get up.')),
+      volta: st.escolhas.rangido === 'olhar' ? t(T('Alguns do Pira viram você se ajoelhar diante de um homem de ferro.', 'Some of the Pyre saw you kneel before a man of iron.')) : t(T('O Pira voltou olhando para a sua maça.', 'The Pyre came back looking at your club.')) });
     const n = [];
-    n.push(mesmaResposta(st) ? t(T('Hessa: viu você responder igual aos sete e aos vinte e um.', 'Hessa: she saw you answer the same at seven and at twenty-one.')) : t(T('Hessa: segurou a carne e não rasgou.', 'Hessa: she held the meat and did not tear it.')));
-    n.push({ ikk: t(T('Ikk: lembra quem pôs a carne na mão dela.', 'Ikk: she remembers who put the meat in her hand.')), rasgar: t(T('Ikk: lembra da metade.', 'Ikk: she remembers the half.')), boca: t(T('Ikk: lembra de ver você comer.', 'Ikk: she remembers watching you eat.')) }[st.f.partilhou || 'boca']);
+    if (temCarne21(st) && !mesmaResposta(st)) n.push(t(T('Hessa: segurou a carne e não rasgou.', 'Hessa: she held the meat and did not tear it.')));
     n.push(dorghVivo(st) ? t(T('Dorgh: voltou com você, cheirando a sangue.', 'Dorgh: he came back with you, smelling of blood.')) : t(T('Dorgh: foi pelo outro lado.', 'Dorgh: he went by the other side.')));
     n.push(af(st, 'velho') >= 1 ? t(T('{VELHO}: “Agora. Agora você vem.”', '{VELHO}: “Now. Now you come.”')) : t(T('{VELHO}: cuspiu mais uma vez, na volta.', '{VELHO}: he spat once more, on the way back.')));
     n.push(af(st, 'gup') >= 2 ? t(T('Gup: dorme perto do seu fogo.', 'Gup: he sleeps by your fire.')) : t(T('Gup: dorme perto do fogo da mãe.', 'Gup: he sleeps by his mother’s.')));
@@ -1121,9 +1167,9 @@ window.LIVRO = {
       gup: T('Aos dezoito, Gup', 'At eighteen, Gup'), conselho: T('O fogo do conselho', 'The council fire'), melhor21: T('O melhor pedaço do bicho', 'The best piece of the beast'), visita: T('Antes das Goelas', 'Before the Gullets'), posto: T('No posto, à noite', 'At the outpost, at night'), morte: T('“Hessa morrer?”', '“Hessa die?”'), rangido: T('O Rangido no chão', 'The Creak on the ground'),
     };
     const linhas = [];
-    const val = { p7: st.escolhas.p7, partilhou: st.f.partilhou, p13: st.escolhas.p13, gup: st.escolhas.gup, melhor21: st.escolhas.melhor21, conselho: st.escolhas.conselho, posto: st.escolhas.posto, morte: st.escolhas.morte, visita: st.escolhas.visita, rangido: st.escolhas.rangido };
+    const val = { p13: st.escolhas.p13, gup: st.escolhas.gup, melhor21: st.escolhas.melhor21, conselho: st.escolhas.conselho, posto: st.escolhas.posto, morte: st.escolhas.morte, visita: st.escolhas.visita };
     Object.entries(val).forEach(([k, v]) => { if (v && R[k][v]) linhas.push({ id: k, opcao: v, q: t(Q[k]), a: t(R[k][v]) }); });
-    return { frase, revela, notas: n, nariz, linhas };
+    return { frase, pilares, pilaresT: t(T('O que voltou', 'What came back')), revela, notas: n, nariz, linhas };
   },
 };
 
