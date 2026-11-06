@@ -16,6 +16,8 @@
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const BOT = () => !!window.__JOGO_BOT;
 const W = 1680, H = 720, CHAO = 640;
+// a velocidade do Kronk andando casa com o pé no chão da folha (≈7,5 px por quadro × 26 qps × 330/270), senão ele patina
+const VK = 240;
 const KRONK_H = 330, HOMEM_H = Math.round(KRONK_H * 1.8 / 2.3);
 
 // ------------------------------------------------------------------ o manifesto dos sprites
@@ -28,7 +30,7 @@ const S = 'assets/sprites/';
 const SPR = {
   kronk: { h: KRONK_H, filtro: 'saturate(.72) brightness(1.04)', a: {
     guarda: { src: S + 'kronk/guarda.webp', frames: 23, fps: 10, refH: 270, go: 274.2, res: 1, loop: true },
-    andar: { src: S + 'kronk/andar.webp', frames: 12, fps: 20, refH: 270, go: 274.2, res: 1, loop: true },
+    andar: { src: S + 'kronk/andar.webp', frames: 12, fps: 26, refH: 270, go: 274.2, res: 1, loop: true },
     golpe: { src: S + 'kronk/golpe.webp', frames: 20, fps: 34, refH: 270, go: 272.4, res: 1, impacto: 9, livre: 14 },
     pesado: { src: S + 'kronk/pesado.webp', frames: 23, fps: 30, refH: 270, go: 273.9, res: 1, segura: 7, impacto: 12, livre: 17, fpsVolta: 34 },
     esquiva: { src: S + 'kronk/esquiva.webp', frames: 12, fps: 26, refH: 270, go: 272.4, res: 1, livre: 9 },
@@ -484,10 +486,12 @@ window.BATALHA6 = function (root, c) {
       const mv = (inp.dir ? 1 : 0) - (inp.esq ? 1 : 0);
       const limD = fase === 'luta' && inimigos.some((e) => !e.morto) ? W - 70 : W + 40;
       if (mv) {
-        K.dir = mv; let nx = clamp(K.x + mv * 270 * dt, 60, limD);
+        K.dir = mv; const x0 = K.x; let nx = clamp(K.x + mv * VK * dt, 60, limD);
         inimigos.forEach((e) => { if (e.morto || e.tipo === 'arqueiro') return; const s = Math.sign(e.x - K.x); if (s === mv && Math.abs(e.x - nx) < 120) nx = e.x - s * 120; });
-        K.x = mv > 0 ? Math.max(K.x, Math.min(nx, K.x + 270 * dt)) : Math.min(K.x, Math.max(nx, K.x - 270 * dt));
-        if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt);
+        K.x = mv > 0 ? Math.max(K.x, Math.min(nx, K.x + VK * dt)) : Math.min(K.x, Math.max(nx, K.x - VK * dt));
+        // preso num corpo ou na borda: não fica andando no lugar
+        if (Math.abs(K.x - x0) < VK * dt * .25) { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
+        else { if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt); }
       } else { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
     }
     function reergue() {

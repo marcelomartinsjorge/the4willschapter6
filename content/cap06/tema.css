@@ -455,3 +455,10 @@ body.mg-fome #mg .j6-bg { filter: saturate(calc(1 - var(--fome) * .9)); }
 .rs-pilar p { margin: 0; line-height: 1.5; }
 .rs-pilar .feito { color: #f0e2cc; }
 .rs-pilar .volta { margin-top: 4px; color: #c9b79c; font-style: italic; }
+/* faro do posto: o ar contado */
+.fr-ar { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 116px); left: 50%; transform: translateX(-50%); display: flex; gap: 7px; align-items: center; z-index: 6; padding: 6px 12px; border-radius: 20px; background: rgba(10,8,6,.55); font: 600 11px/1 var(--sans, sans-serif); letter-spacing: .14em; text-transform: uppercase; color: #cdbfa8; pointer-events: none; }
+.fr-ar span { margin-right: 4px; }
+.fr-ar i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(220,200,170,.6); transition: background .3s, transform .3s; }
+.fr-ar i.on { background: #e8d6b4; }
+.fr-ar.pouco i.on { background: #e07a4a; animation: arPisca 1s ease-in-out infinite; }
+@keyframes arPisca { 50% { transform: scale(1.25); } }

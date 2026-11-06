@@ -102,6 +102,12 @@ function faro(root, c) {
     ajuda.textContent = toque ? (en ? 'Hold your finger where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o dedo onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.')
       : (en ? 'Hold the click (or space) where a smoke is born to smell it. Stay longer: the deeper notes come.' : 'Segure o clique (ou o espaço) onde uma fumaça nasce para cheirar. Fique mais: vêm as notas de baixo.');
     let etapa2 = false;
+    // escondido: o ar é contado (cada camada de cheiro gasta um; errar gasta dois)
+    let ar = cfg.ar || 0, arEl = null, semArT = 0;
+    if (cfg.ar) { arEl = document.createElement('div'); arEl.className = 'fr-ar'; root.appendChild(arEl); }
+    const desenhaAr = () => { if (!arEl) return; arEl.innerHTML = `<span>${en ? 'Breath' : 'Ar'}</span>` + Array.from({ length: cfg.ar }, (_, i) => `<i class="${i < ar ? 'on' : ''}"></i>`).join(''); arEl.classList.toggle('pouco', ar <= 2); };
+    const gastaAr = (n) => { if (!cfg.ar) return; ar = Math.max(0, ar - n); desenhaAr(); if (ar <= 0 && !semArT) semArT = performance.now(); };
+    desenhaAr();
     if (cfg.pergunta) perg.textContent = T2(cfg.pergunta); else perg.remove();
 
     // as fontes de cheiro
@@ -144,7 +150,7 @@ function faro(root, c) {
       if (b) { b.addEventListener('pointerdown', (e) => e.stopPropagation()); b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide(f); }); }
     }
     const novaNota = (f) => {
-      f.nv++; desenhaTag(f); A.fareja && A.fareja();
+      f.nv++; gastaAr(1); desenhaTag(f); A.fareja && A.fareja();
       const s = T2(f.notas[f.nv - 1]); if (/^§/.test(s)) { A.ronco && A.ronco(1); }
       if (f.nv === 1) ajuda.classList.add('some');
       if (f.nv === 1 && f.notas.length > 1 && !ensinouCamada && modo !== 'sequencia') { ensinouCamada = true; P.diz(en ? 'Smell have more under. Kronk stay.' : 'Cheiro ter mais embaixo. Kronk ficar.', c); }
@@ -179,9 +185,9 @@ function faro(root, c) {
         f.el.classList.add('certo'); A.fareja && A.fareja();
         if (f.texto) P.diz(f.texto, c, 'alvo');
         const pts = Math.max(300, Math.round(1700 - tempo * 12 - erros * 300 - iscas * 220 + fontes.filter((x) => x.feito).length * 80));
-        return termina({ tempo: Math.round(tempo), seguidos: fontes.filter((x) => x.feito).length, iscas, erros, pontos: pts }, 2200);
+        return termina({ achou: true, cheirou: fontes.filter((x) => x.feito).map((x) => x.id), tempo: Math.round(tempo), seguidos: fontes.filter((x) => x.feito).length, iscas, erros, pontos: pts }, 2200);
       }
-      erros++; f.errado = true; f.el.classList.add('errado'); desenhaTag(f);
+      erros++; gastaAr(2); f.errado = true; f.el.classList.add('errado'); desenhaTag(f);
       P.diz(f.nao || (en ? 'Not this one.' : 'Num ser esse.'), c);
       A.tone && A.tone(150, .18, 'sine', .06);
     }
@@ -201,7 +207,11 @@ function faro(root, c) {
         const pronto = fontes.find((f) => f.feito && (f.alvo || (modo === 'cavar' && f.id === 'A')));
         if (pronto && !fim && modo !== 'sequencia') decide(pronto);
       }
-      const puxa = nz.puxa && nz.dentro && !fim;
+      if (semArT && !fim && performance.now() - semArT > 3500) {
+        if (cfg.semAr) P.diz(cfg.semAr, c);
+        termina({ achou: false, cheirou: fontes.filter((x) => x.feito).map((x) => x.id), erros, pontos: 300 + fontes.filter((x) => x.feito).length * 60 }, 2200);
+      }
+      const puxa = nz.puxa && nz.dentro && !fim && !(cfg.ar && ar <= 0);
       nariz.style.transform = `translate(${nz.x}px, ${nz.y}px)`;
       nariz.classList.toggle('on', nz.dentro && !fim); nariz.classList.toggle('puxa', puxa);
       if (puxa) { sniffT -= dt; if (sniffT <= 0) { sniffT = .6; A.fareja && A.fareja(); } } else sniffT = 0;
