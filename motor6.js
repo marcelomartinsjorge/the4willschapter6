@@ -637,17 +637,39 @@ function abreEscolha(p) {
   const barr = fomeOn() ? ops.filter((o) => o.barriga) : [], resto = ops.filter((o) => !barr.includes(o));
   box.innerHTML = `<p class="eyebrow">${e.pergunta ? esc(sub(tr(typeof e.pergunta === 'function' ? e.pergunta(st) : e.pergunta))) : U('oque')}</p>` + resto.map(optHTML).join('');
   box.querySelectorAll('.opt').forEach((b) => b.onclick = () => escolher(p, b.dataset.id));
-  // a barriga: a opção dela nasce embaixo do dedo, e as outras continuam em volta
+  // a barriga: a opção dela nasce embaixo do dedo (celular) ou vem deslizando até o mouse (PC), e quem resiste paga
+  const toque = matchMedia('(pointer: coarse)').matches, forte = fomeOn() && st.fome >= 50;
+  if (barr.length && forte && !toque) box.classList.add('barr-forte');
   barr.forEach((o, j) => {
     const b = document.createElement('button'); b.className = 'opt-barriga'; b.dataset.id = o.id; b.type = 'button';
-    b.innerHTML = `<span class="k">${resto.length + j + 1}</span>${esc(rotulo(o))}`;
+    b.innerHTML = `<span class="k">${toque ? resto.length + j + 1 : '⏎'}</span>${esc(rotulo(o))}`;
     document.body.appendChild(b);
     const w = b.offsetWidth || 180, h = b.offsetHeight || 54;
-    b.style.left = clamp(ptr.x - w / 2, 10, innerWidth - w - 10) + 'px'; b.style.top = clamp(ptr.y - h / 2, 70, innerHeight - h - 10) + 'px';
+    const alvoX = () => clamp(ptr.x - w / 2, 10, innerWidth - w - 10), alvoY = () => clamp(ptr.y - h / 2, 70, innerHeight - h - 10);
+    let x = alvoX(), y = alvoY();
+    if (forte && !toque && !BOT()) {   // nasce a uns passos do mouse e escorrega até ele; não segue depois de chegar
+      const ang = Math.random() * Math.PI * 2, d = 150 + Math.random() * 80;
+      x = clamp(x + Math.cos(ang) * d, 10, innerWidth - w - 10); y = clamp(y + Math.sin(ang) * d, 70, innerHeight - h - 10);
+      const vai = () => {
+        if (!b.isConnected || b.classList.contains('sai')) return;
+        const f = .012 + clamp((st.fome - 50) / 50, 0, 1) * .05, tx = alvoX(), ty = alvoY();
+        x += (tx - x) * f; y += (ty - y) * f; b.style.left = x + 'px'; b.style.top = y + 'px';
+        if (Math.hypot(tx - x, ty - y) > 5) requestAnimationFrame(vai);
+      };
+      setTimeout(() => requestAnimationFrame(vai), 450);
+    }
+    b.style.left = x + 'px'; b.style.top = y + 'px';
     requestAnimationFrame(() => b.classList.add('on'));
     A.ronco(.9);
     setTimeout(() => { b.onclick = () => escolher(p, o.id); }, BOT() ? 0 : 380);   // o mesmo toque que abriu não escolhe
     box.dataset.barriga = '1';
+    // quem não escolhe: a barriga fala, a tela estremece, o botão cresce e a fome sobe
+    if (!BOT()) for (let n = 1; n <= 4; n++) later(() => {
+      if (!b.isConnected || b.classList.contains('sai') || st.escolhas[e.id]) return;
+      A.ronco(Math.min(1, .7 + n * .1)); document.body.classList.remove('ronca'); void document.body.offsetWidth; document.body.classList.add('ronca');
+      b.style.setProperty('--cresce', (1 + n * .09).toFixed(2)); mudaFome(1);
+      if (n === 2 || n === 4) { const q = document.createElement('p'); q.className = 'barriga novo'; q.textContent = n === 2 ? 'BARRIGA.' : (LANG === 'en' ? 'NOW.' : 'AGORA.'); box.appendChild(q); }
+    }, 3500 + (n - 1) * 2800);
   });
 }
 function limpaBarriga() { document.querySelectorAll('.opt-barriga').forEach((b) => { b.classList.add('sai'); b.onclick = null; setTimeout(() => b.remove(), 400); }); }
@@ -751,7 +773,7 @@ addEventListener('keydown', (e) => {
   if (document.body.classList.contains('mg-on') || !$('#cover').classList.contains('hide')) return;
   if ($('#codex').classList.contains('show') || $('#narizModal').classList.contains('show')) { if (e.key === 'Escape') { $('#codex').classList.remove('show'); $('#narizModal').classList.remove('show'); } return; }
   if (e.code === 'Space' && box.querySelector('.segura-w')) return;   // o espaço segura
-  if (['ArrowRight', 'Enter', ' '].includes(e.key)) { e.preventDefault(); const pb = $('.portao-btn'); if (pb) pb.click(); else if (!btnNext.disabled) irProxima(); }
+  if (['ArrowRight', 'Enter', ' '].includes(e.key)) { e.preventDefault(); const pb = $('.portao-btn'), bb = document.querySelector('.opt-barriga.on:not(.sai)'); if (pb) pb.click(); else if (bb && btnNext.disabled && !e.repeat && e.key !== 'ArrowRight') bb.click(); else if (!btnNext.disabled) irProxima(); }
   else if (e.key === 'ArrowLeft') irAnterior();
   else if (/^[1-5]$/.test(e.key)) { const bs = [...box.querySelectorAll('.opt:not(:disabled)'), ...document.querySelectorAll('.opt-barriga')]; const b = bs[+e.key - 1]; b && b.click(); }
   else if (e.key === 'n' || e.key === 'N') { if (st.nariz.length) abrirNariz(); }
