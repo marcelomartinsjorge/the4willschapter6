@@ -30,7 +30,7 @@ const S = 'assets/sprites/';
 const SPR = {
   kronk: { h: KRONK_H, filtro: 'saturate(.72) brightness(1.04)', a: {
     guarda: { src: S + 'kronk/guarda.webp', frames: 23, fps: 10, refH: 270, go: 274.2, res: 1, loop: true },
-    andar: { src: S + 'kronk/andar.webp', frames: 12, fps: 26, refH: 270, go: 274.2, res: 1, loop: true },
+    andar: { src: S + 'kronk/andar.webp', frames: 26, fps: 32, refH: 270, go: 275.1, res: 1, loop: true },   // o ciclo inteiro: pé esquerdo e pé direito
     golpe: { src: S + 'kronk/golpe.webp', frames: 20, fps: 34, refH: 270, go: 272.4, res: 1, impacto: 9, livre: 14 },
     pesado: { src: S + 'kronk/pesado.webp', frames: 23, fps: 30, refH: 270, go: 273.9, res: 1, segura: 7, impacto: 12, livre: 17, fpsVolta: 34 },
     esquiva: { src: S + 'kronk/esquiva.webp', frames: 12, fps: 26, refH: 270, go: 272.4, res: 1, livre: 9 },
@@ -190,10 +190,12 @@ window.BATALHA6 = function (root, c) {
 
     // ---------- desenho de um quadro
     function anim(ent) { const k = SPR[ent.tipo] || SPR.soldado; return k.a[ent.a] || k.a.guarda; }
-    function desenha(ent, alfa = 1) {
-      const k = SPR[ent.tipo], a = anim(ent), o = imgs[a.src];
+    // a troca de animação não corta seco: o quadro velho some por cima do novo em ~0,13 s
+    const XF = 0.13;
+    function quadroDe(a, f) { return a.seq ? a.seq[Math.max(0, Math.floor(f)) % a.seq.length] : Math.min(a.frames - 1, Math.max(0, Math.floor(f))); }
+    function pinta(ent, k, a, fr, alfa) {
+      const o = imgs[a.src];
       const sc = k.h / (a.refH * a.res) * (a.esc || 1) * (a.escFim ? 1 + (a.escFim - 1) * clamp(ent.f / (a.frames - 1), 0, 1) : 1);
-      const fr = a.seq ? a.seq[Math.max(0, Math.floor(ent.f)) % a.seq.length] : Math.min(a.frames - 1, Math.max(0, Math.floor(ent.f)));
       cx.save(); cx.globalAlpha = alfa; cx.translate(ent.x, 0);
       if (!a.fixo && ent.dir < 0) cx.scale(-1, 1);
       if (k.filtro) cx.filter = k.filtro;
@@ -209,6 +211,15 @@ window.BATALHA6 = function (root, c) {
         const h = k.h, w = h * .32; cx.beginPath(); cx.roundRect(-w / 2, CHAO - h, w, h, 20); cx.fill();
       }
       cx.restore();
+    }
+    function desenha(ent, alfa = 1) {
+      const k = SPR[ent.tipo], a = anim(ent);
+      pinta(ent, k, a, quadroDe(a, ent.f), alfa);
+      if (ent.xf) {
+        const r = 1 - (tempo - ent.xf.t0) / ent.xf.dur;
+        if (r <= 0 || !k.a[ent.xf.a]) ent.xf = null;
+        else pinta(ent, k, k.a[ent.xf.a], quadroDe(k.a[ent.xf.a], ent.xf.f), alfa * r);
+      }
     }
 
     // ---------- a ponta da arma na tela (para o rastro de luz)
@@ -250,7 +261,12 @@ window.BATALHA6 = function (root, c) {
     }
 
     // ---------- trocar de animação
-    function poe(ent, a, f = 0) { ent.a = a; ent.f = f; ent.t = 0; }
+    // as trocas que pedem a mistura: entre andar e guarda, e a volta de um golpe para a guarda
+    const MISTURA = { guarda: 1, andar: 1, aberto: 1 };
+    function poe(ent, a, f = 0) {
+      if (ent.a && ent.a !== a && !ent.morto && (MISTURA[a] || MISTURA[ent.a])) ent.xf = { a: ent.a, f: ent.f, t0: tempo, dur: MISTURA[a] && MISTURA[ent.a] ? XF : XF * .6 };
+      ent.a = a; ent.f = f; ent.t = 0;
+    }
     function avanca(ent, dt, vel = 1) {
       const a = anim(ent); let fps = a.fps * vel;
       if (ent.volta && a.fpsVolta) fps = a.fpsVolta * vel;
@@ -273,6 +289,10 @@ window.BATALHA6 = function (root, c) {
       arcos.push({ x: ent.x + d * h * .18, y: CHAO - h * .58, r: h * (forte ? .62 : .5), d, age: 0, life: forte ? .2 : .14, forte, frio });
     }
     function faisca(x, y) { for (let i = 0; i < 12; i++) { const ang = Math.random() * Math.PI * 2, sp = 80 + Math.random() * 160; parts.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp * .6, life: .3, age: 0, size: 2 + Math.random() * 2.5, spark: true }); } }
+    // o empurrão: a distância vira uma velocidade que cai depressa (≈ dist × 12 px/s, meia-vida ~0,06 s)
+    const KB = 12;
+    function empurra(ent, dist) { ent.kb = (ent.kb || 0) + dist * KB; }
+    function desliza(ent, dt, lo, hi) { if (!ent.kb) return; ent.x = clamp(ent.x + ent.kb * dt, lo, hi); ent.kb *= Math.exp(-KB * dt); if (Math.abs(ent.kb) < 4) ent.kb = 0; }
     function juice(forte, leve) { hitstop = forte ? .11 : .06; shake = forte ? .22 : .12; shakeM = (forte ? 14 : 7) * (leve ? .5 : 1); }
 
     // ---------- alcances (centro a centro, em px do mundo)
@@ -309,26 +329,33 @@ window.BATALHA6 = function (root, c) {
     function acertaKronk(pesado) {
       arco(K, pesado, false);
       let alvos = alvosNaFrente(pesado ? ALC.pesado : ALC.golpe);
-      if (!alvos.length) return;
+      if (!alvos.length) { K.cadeia = 0; return; }
       if (!(pesado && furia >= 80)) alvos = alvos.slice(0, 1);
-      alvos.forEach((e) => bate(e, pesado));
+      // a cadeia: golpes leves seguidos que entram; o terceiro empurra como o pesado
+      let fin = false;
+      if (!pesado) { const e0 = alvos[0], abre = e0.est === 'aberto' || e0.est === 'apanha' || e0.est === 'dorme' || e0.tipo === 'arqueiro' || (e0.est === 'ataca' && e0.f < (anim(e0).impacto || 99));
+        K.cadeia = abre ? (tempo - (K.cadT || -9) < .9 ? (K.cadeia || 0) + 1 : 1) : 0; K.cadT = tempo;
+        if (K.cadeia >= 3) { fin = true; K.cadeia = 0; } }
+      else K.cadeia = 0;
+      alvos.forEach((e) => bate(e, pesado, fin));
     }
-    function bloqueia(e, dir, yImp, forte) { faisca(e.x - dir * 40, yImp); faisca(e.x - dir * 40, yImp - 20); SOM.escudo(); juice(!!forte, !forte); e.x = clamp(e.x + dir * (forte ? 60 : 24), -200, W + 200); if (!forte) { K.x = clamp(K.x - dir * 28, 60, W - 60); parts.push({ x: e.x - dir * 40, y: yImp, vx: 0, vy: 0, life: .25, age: 0, size: 60, anel: true, azul: true }); } }
+    function bloqueia(e, dir, yImp, forte) { faisca(e.x - dir * 40, yImp); faisca(e.x - dir * 40, yImp - 20); SOM.escudo(); juice(!!forte, !forte); empurra(e, dir * (forte ? 60 : 24)); if (!forte) { empurra(K, -dir * 28); parts.push({ x: e.x - dir * 40, y: yImp, vx: 0, vy: 0, life: .25, age: 0, size: 60, anel: true, azul: true }); } }
     function contra(e) {
       // ele defende e devolve na hora: o golpe já vem no meio
       const a = SPR[e.tipo].a.golpe || SPR[e.tipo].a.alto;
       e.est = 'ataca'; e.contra = true; poe(e, e.tipo === 'simon' ? um(['alto', 'baixo']) : 'golpe', Math.max(0, (anim(e).impacto || 6) - 7)); e.f = Math.max(0, (anim(e).impacto || 6) - 7);
       SOM.grito(); vezAtaque = tempo + .6; void a;
     }
-    function bate(e, pesado) {
+    function bate(e, pesado, fin = false) {
       const yImp = CHAO - HOMEM_H * .6, dir = Math.sign(e.x - K.x) || K.dir;
       const naSubida = e.est === 'ataca' && e.f < (anim(e).impacto || 99);
       const dano = (n, cambaleia = true) => {
-        e.hp -= n; e.flash = .12; e.mostraHp = 2.2; sangue(e.x, yImp, dir); juice(pesado); pesado ? SOM.acertaForte() : SOM.acertaLeve(); SOM.gemido();
+        if (fin) n = Math.max(n, 2);
+        e.hp -= n; e.flash = .12; e.mostraHp = 2.2; sangue(e.x, yImp, dir); juice(pesado || fin); pesado || fin ? SOM.acertaForte() : SOM.acertaLeve(); SOM.gemido();
         furia = clamp(furia + (naSubida ? 10 : 5), 0, 100);
         if (naSubida) faisca(e.x, yImp - 30);
         if (e.hp <= 0) return morre(e, dir);
-        e.x = clamp(e.x + dir * (pesado ? 110 : 45), -200, W + 200);
+        empurra(e, dir * (pesado || fin ? 110 : 45));
         if (cambaleia || naSubida) { e.est = 'apanha'; poe(e, 'apanha'); }
       };
       if (e.est === 'dorme') return dano(pesado ? 3 : 1);
@@ -338,7 +365,7 @@ window.BATALHA6 = function (root, c) {
         if (!pesado) { bloqueia(e, dir, yImp); if (!ensinouGuarda) { ensinouGuarda = true; legenda(cfg.legendas.guarda, 2600); } return; }
         e.escudo++; bloqueia(e, dir, yImp, true);
         if (e.escudo >= 2) { e.est = 'quebra'; poe(e, 'quebra'); return; }
-        e.est = 'apanha'; poe(e, 'apanha'); e.x = clamp(e.x + dir * 70, -200, W + 200); return;
+        e.est = 'apanha'; poe(e, 'apanha'); empurra(e, dir * 70); return;
       }
       if (e.tipo === 'soldado') {
         if (!aberto) {
@@ -382,7 +409,7 @@ window.BATALHA6 = function (root, c) {
       sangue(K.x, CHAO - KRONK_H * .62, d); juice(true); SOM.apanha(); K.dor = .35; dorTela = 1; K.hpPerda = (K.hpPerda || 0) + n;
       K.dir = -d || K.dir;   // vira para quem bateu
       if (K.hp <= 0) { K.est = 'cai'; poe(K, 'cai'); K.reverso = false; K.cai = 0; quedas++; return; }
-      K.est = 'apanha'; poe(K, 'apanha'); K.inv = .6; K.x = clamp(K.x + d * 70, 60, W - 60);
+      K.est = 'apanha'; poe(K, 'apanha'); K.inv = .6; empurra(K, d * 70); K.cadeia = 0;
     }
 
     // a esquiva no último instante: o mundo fica lento, quem bateu fica aberto, a fúria sobe
@@ -395,8 +422,8 @@ window.BATALHA6 = function (root, c) {
 
     // ---------- controles
     const inp = { esq: false, dir: false, atkDown: false, atkT: 0, atk: null, esquiva: false };
-    const atkPress = () => { if (window.__mgPausa) return; if (!inp.atkDown) { inp.atkDown = true; inp.atkT = 0; } };
-    const atkSolta = () => { if (!inp.atkDown) return; inp.atkDown = false; if (inp.atkT < .18) inp.atk = 'golpe'; else inp.atk = 'solta'; };
+    const atkPress = () => { if (window.__mgPausa) return; if (!inp.atkDown) { inp.atkDown = true; inp.atkT = 0; inp.atk = 'golpe'; inp.atkBuf = tempo; } };
+    const atkSolta = () => { if (!inp.atkDown) return; inp.atkDown = false; if (inp.atkT >= .18) inp.atk = 'solta'; };
     const kd = (e) => {
       if (fim) return;
       if (['ArrowLeft', 'a', 'A'].includes(e.key)) inp.esq = true;
@@ -437,12 +464,16 @@ window.BATALHA6 = function (root, c) {
       // virar para o inimigo mais perto quando parado
       if (!ocupado() && !inp.esq && !inp.dir) { const e = inimigos.filter((x) => !x.morto).sort((a, b) => Math.abs(a.x - K.x) - Math.abs(b.x - K.x))[0]; if (e && Math.abs(e.x - K.x) < 520) K.dir = e.x > K.x ? 1 : -1; }
       const livre = !ocupado() || podeCancelar();
-      if (livre && inp.esquiva) {
-        inp.esquiva = false;
-        if (K.esqCd <= 0) { K.esqCd = .45; K.est = 'esquiva'; poe(K, 'esquiva'); K.inv = .48; K.esqT = tempo; K.vx = -K.dir * 430; SOM.esquiva(); return; }
+      // o comando apertado um pouco antes da hora não se perde: fica guardado ~0,2 s (esquiva) e ~0,35 s (golpe)
+      if (inp.esquiva) { if (inp.esqT0 == null) inp.esqT0 = tempo; if (tempo - inp.esqT0 > .22) { inp.esquiva = false; inp.esqT0 = null; } }
+      if (inp.atk === 'golpe' && tempo - inp.atkBuf > .35) inp.atk = null;
+      // depois que o golpe leve acerta, a esquiva já corta o resto dele
+      const livreEsq = livre || (K.est === 'golpe' && K.f >= (anim(K).impacto || 99) + 1);
+      if (livreEsq && inp.esquiva && K.esqCd <= 0) {
+        inp.esquiva = false; inp.esqT0 = null; K.cadeia = 0;
+        K.esqCd = .45; K.est = 'esquiva'; poe(K, 'esquiva'); K.inv = .48; K.esqT = tempo; K.vx = -K.dir * 430; SOM.esquiva(); return;
       }
-      inp.esquiva = false;
-      if (livre && inp.atk === 'golpe') { inp.atk = null; if (gasta('golpe')) { K.est = 'golpe'; poe(K, 'golpe'); K.bateu = false; SOM.golpe(); return; } }
+      if (livre && inp.atk === 'golpe') { inp.atk = null; if (gasta('golpe')) { K.est = 'golpe'; poe(K, 'golpe'); K.bateu = false; K.carga = inp.atkDown; SOM.golpe(); return; } }
       if (livre && inp.atkDown && inp.atkT >= .18 && K.est !== 'pesado') {
         inp.atk = null;
         if (!inp.semAr) { if (gasta('pesado')) { K.est = 'pesado'; poe(K, 'pesado'); K.bateu = false; K.volta = false; return; } inp.semAr = true; }
@@ -463,7 +494,15 @@ window.BATALHA6 = function (root, c) {
         return;
       }
       if (K.est === 'golpe') {
-        const a = anim(K), ant = K.f; const acabou = avanca(K, dt, vel);
+        const a = anim(K);
+        if (K.carga && inp.atkDown && inp.atkT >= .18 && !K.bateu && K.f < a.impacto) {
+          const m = furia >= 80 ? .6 : 1;
+          K.carga = false;
+          if (K.fol + CUSTO.golpe * m >= CUSTO.pesado * m) { K.fol += CUSTO.golpe * m; gasta('pesado'); K.est = 'pesado'; poe(K, 'pesado'); K.bateu = false; K.volta = false; return; }
+        }
+        if (!inp.atkDown) K.carga = false;
+        const emCadeia = K.cadeia > 0 && tempo - K.cadT < .9;
+        const ant = K.f; const acabou = avanca(K, dt, vel * (emCadeia ? 1.15 : 1));
         if (!K.bateu && ant < a.impacto && K.f >= a.impacto) { K.bateu = true; acertaKronk(false); }
         if (acabou) { K.est = 'guarda'; poe(K, 'guarda'); }
         return;
@@ -486,13 +525,15 @@ window.BATALHA6 = function (root, c) {
       const mv = (inp.dir ? 1 : 0) - (inp.esq ? 1 : 0);
       const limD = fase === 'luta' && inimigos.some((e) => !e.morto) ? W - 70 : W + 40;
       if (mv) {
-        K.dir = mv; const x0 = K.x; let nx = clamp(K.x + mv * VK * dt, 60, limD);
+        if (K.mvDir !== mv) { K.mvDir = mv; K.va = Math.min(K.va || 0, .35); }
+        K.va = Math.min(1, (K.va || 0) + dt / .12); const vk = VK * (.35 + .65 * K.va);
+        K.dir = mv; const x0 = K.x; let nx = clamp(K.x + mv * vk * dt, 60, limD);
         inimigos.forEach((e) => { if (e.morto || e.tipo === 'arqueiro') return; const s = Math.sign(e.x - K.x); if (s === mv && Math.abs(e.x - nx) < 120) nx = e.x - s * 120; });
-        K.x = mv > 0 ? Math.max(K.x, Math.min(nx, K.x + VK * dt)) : Math.min(K.x, Math.max(nx, K.x - VK * dt));
+        K.x = mv > 0 ? Math.max(K.x, Math.min(nx, K.x + vk * dt)) : Math.min(K.x, Math.max(nx, K.x - vk * dt));
         // preso num corpo ou na borda: não fica andando no lugar
-        if (Math.abs(K.x - x0) < VK * dt * .25) { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
-        else { if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt); }
-      } else { if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
+        if (Math.abs(K.x - x0) < vk * dt * .25) { K.va = 0; if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
+        else { if (K.est !== 'andar') { K.est = 'andar'; poe(K, 'andar'); } avanca(K, dt, Math.abs(K.x - x0) / (VK * dt)); }
+      } else { K.va = 0; K.mvDir = 0; if (K.est !== 'guarda') { K.est = 'guarda'; poe(K, 'guarda'); } avanca(K, dt); }
     }
     function reergue() {
       // a onda recomeça na mesma tela, com a fúria do começo
@@ -762,9 +803,9 @@ window.BATALHA6 = function (root, c) {
       arcos.forEach((a) => { a.age += dt; }); arcos = arcos.filter((a) => a.age < a.life);
       if (fase === 'fim') dt *= .4;
       tempo += dt; shake = Math.max(0, shake - dt);
-      kronk(dt);
+      kronk(dt); desliza(K, dt, 60, W - 60);
       filas();
-      inimigos.forEach((e) => inimigo(e, dt));
+      inimigos.forEach((e) => { inimigo(e, dt); desliza(e, dt, -200, W + 200); });
       rastroArma(K, dt); inimigos.forEach((e) => { rastroArma(e, dt); e.mostraHp = Math.max(0, (e.mostraHp || 0) - dt); });
       dorTela = Math.max(0, dorTela - dt * 2.2);
       // dois inimigos nunca ocupam o mesmo lugar: o de trás recua um pouco

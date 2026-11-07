@@ -176,6 +176,7 @@ function faro(root, c) {
         etapa2 = true; f.alvo = false; f.usado = true;
         f.el.classList.add('certo'); desenhaTag(f); A.fareja && A.fareja();
         if (f.texto) P.diz(f.texto, c, 'alvo');
+        if (cfg.troca) setTimeout(() => { if (!fim) P.diz(cfg.troca, c); }, BOT() ? 0 : 1400);
         fontes.forEach((x) => { if (x.alvo2) x.alvo = true; });
         perg.classList.remove('troca'); void perg.offsetWidth; perg.classList.add('troca');
         perg.textContent = T2(cfg.pergunta2);

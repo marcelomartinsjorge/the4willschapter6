@@ -193,7 +193,7 @@ window.LIVRO = {
   faro: {
     // a comida que a fome traz (aparece em qualquer faro de procura, com fome alta)
     isca: { notas: [T('Carne.', 'Meat.'), T('Velha. Mosca.', 'Old. Flies.'), T('§CARNE.', '§MEAT.')], nao: T('Barriga querer. Nariz num querer.', 'Belly want. Nose not want.') },
-    f1: { modo: 'alvo', img: IMG('k1-festa'), pergunta: T('Barriga querer. Onde?', 'Belly want. Where?'), pergunta2: T('Muita mão. Uma mão dar. Qual?', 'Many hands. One hand give. Which?'), fios: [
+    f1: { modo: 'alvo', img: IMG('k1-festa'), pergunta: T('Barriga querer. Onde?', 'Belly want. Where?'), pergunta2: T('Muita mão. Uma mão dar. Qual?', 'Many hands. One hand give. Which?'), troca: T('Agora, a mão que dar.', 'Now, the hand that give.'), fios: [
       { id: 'fumaca', cor: '#9a948c', ate: [0.86, 0.14], larg: 16, notas: [T('Fumaça.', 'Smoke.'), T('Madeira queimar.', 'Wood burn.')], nao: T('Fumaça num encher barriga.', 'Smoke not fill belly.') },
       { id: 'gente', cor: '#b0715a', ate: [0.89, 0.4], larg: 16, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.'), T('Segurar.', 'Hold.')], nao: T('Mão grande num dar. Mão grande segurar.', 'Big hands not give. Big hands hold.') },
       { id: 'gente2', cor: '#b0715a', ate: [0.67, 0.5], larg: 16, notas: [T('Suor.', 'Sweat.'), T('Mão grande.', 'Big hands.'), T('Fumaça.', 'Smoke.')], nao: T('Mão de fumaça. Num dar.', 'Hand of smoke. Not give.') },
