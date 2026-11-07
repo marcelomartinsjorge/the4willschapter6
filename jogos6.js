@@ -140,7 +140,7 @@ function faro(root, c) {
       const notas = f.notas.slice(0, f.nv).map((t, i) => { const s = T2(t), barr = /^§/.test(s); return `<li class="${i === f.nv - 1 ? 'nova' : ''} ${barr ? 'barr' : ''}">${c.esc(s.replace(/^§\s*/, ''))}</li>`; }).join('');
       const falta = f.notas.length - f.nv;
       let botao = '';
-      if (f.feito && !f.errado && !fim) {
+      if (f.feito && !f.errado && !fim && !f.usado) {
         if (modo === 'alvo' && cfg.pergunta) botao = `<button type="button" class="fr-esse">${c.esc(en ? 'This one' : 'É esse')}</button>`;
         if (modo === 'cavar') botao = `<button type="button" class="fr-esse cava">${c.esc(en ? 'Dig here' : 'Cavar aqui')}</button>`;
       }
@@ -174,7 +174,7 @@ function faro(root, c) {
       if (f.alvo && cfg.pergunta2 && !etapa2) {
         // a segunda pergunta: o mesmo nariz, outra coisa para achar
         etapa2 = true; f.alvo = false; f.usado = true;
-        f.el.classList.add('certo'); A.fareja && A.fareja();
+        f.el.classList.add('certo'); desenhaTag(f); A.fareja && A.fareja();
         if (f.texto) P.diz(f.texto, c, 'alvo');
         fontes.forEach((x) => { if (x.alvo2) x.alvo = true; });
         perg.classList.remove('troca'); void perg.offsetWidth; perg.classList.add('troca');
