@@ -145,7 +145,7 @@ window.LIVRO = {
   tituloPag: 'Kronk, o Maior · As Quatro Vontades',
   tituloPagEn: 'Kronk, the Biggest · The Four Wills',
   capa: IMG('capa'),
-  proximo: { titulo: 'Capítulo VII', tituloEn: 'Chapter VII', url: '' },
+  proximo: { titulo: 'Capítulo VII', tituloEn: 'Chapter VII', url: 'https://marcelomartinsjorge.github.io/the4willschapter7/' },
 
   // ---------------------------------------------------------------- o Cap. V, com os defaults do roteiro (§2)
   inicio: (st) => {
