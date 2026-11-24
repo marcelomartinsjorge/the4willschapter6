@@ -99,7 +99,9 @@ const A = {
     return true;
   },
   stopNarr(manterFila) { if (!manterFila) this.fila = []; if (this.narr) { const s = this.narr; this.narr = null; try { s.stop(); } catch (e) {} this.duck(false); } },
-  duck(on) { if (!this.ctx) return; const t = this.ctx.currentTime; this.bed.gain.cancelScheduledValues(t); this.bed.gain.setTargetAtTime(on ? .25 : 1, t, .25); },
+  duck(on) { if (!this.ctx) return; this.ducked = on; const t = this.ctx.currentTime; this.bed.gain.cancelScheduledValues(t); this.bed.gain.setTargetAtTime(this.mudo ? 0 : (on ? .25 : 1), t, .25); },
+  // o fundo cala (S1): some devagar e só volta quando pedirem
+  cala(on) { if (!this.ctx || !!this.mudo === !!on) return; this.mudo = !!on; const t = this.ctx.currentTime; this.bed.gain.cancelScheduledValues(t); this.bed.gain.setTargetAtTime(on ? 0 : (this.ducked ? .25 : 1), t, on ? .6 : .9); },
   setOn(on) { this.on = on; if (this.master) this.master.gain.setTargetAtTime(on ? 1 : 0, this.ctx.currentTime, .1); },
   tone(f, d, type = 'sine', v = .08, when = 0, bend = 0) {
     if (!this.ctx) return; const t = this.ctx.currentTime + when, o = this.ctx.createOscillator(), g = this.ctx.createGain();
@@ -274,6 +276,7 @@ function toast(t) { const el = document.createElement('div'); el.className = 'to
 // Cada cheiro novo entra com o nome que o Kronk deu e uma linha na voz dele.
 // Um cheiro que volta acende o nome em ouro, por um momento. Ninguém diz o que ele significa.
 const NARIZ = L.nariz || {};
+const rostoNz = (id) => { const r = NARIZ[id] && NARIZ[id].rosto; const v = typeof r === 'function' ? r(st) : r; return v ? 'assets/images/rostos/' + v + '.jpg' : null; };
 const nomeCheiro = (id) => { const n = NARIZ[id]; if (!n) return id; return tr(typeof n.nome === 'function' ? n.nome(st) : n.nome); };
 const linhaCheiro = (id) => { const n = NARIZ[id]; if (!n) return ''; return tr(typeof n.linha === 'function' ? n.linha(st) : n.linha); };
 function desenhaNariz() {
@@ -288,7 +291,7 @@ function cheiro(id, modo) {
     st.nariz.push(id); salvar(); desenhaNariz(); registrar('nariz_' + id, '1');
     A.fareja();
     const el = document.createElement('div'); el.className = 'cheiro-novo';
-    const rs = NARIZ[id].rosto ? 'assets/images/rostos/' + NARIZ[id].rosto + '.jpg' : null;
+    const rs = rostoNz(id);
     el.innerHTML = `${rostoHTML(rs, 'rosto nz')}<small>${esc(U('narizNovo'))}</small><b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span>`;
     document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('on'));
     const b = $('#narizBtn'); b && (b.classList.remove('pulsa'), void b.offsetWidth, b.classList.add('pulsa'));
@@ -306,7 +309,7 @@ function cheiro(id, modo) {
 function abrirNariz() {
   const m = $('#narizModal');
   $('#nzTitle').textContent = U('narizT'); $('#nzSub').textContent = U('narizSub');
-  $('#nzLista').innerHTML = st.nariz.map((id) => `<li class="${NARIZ[id] && NARIZ[id].rosto ? 'com-rosto' : ''}">${rostoHTML(NARIZ[id] && NARIZ[id].rosto ? 'assets/images/rostos/' + NARIZ[id].rosto + '.jpg' : null)}<b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span></li>`).join('') || `<li class="vazio">${esc(U('narizVazio'))}</li>`;
+  $('#nzLista').innerHTML = st.nariz.map((id) => `<li class="${rostoNz(id) ? 'com-rosto' : ''}">${rostoHTML(rostoNz(id))}<b>${esc(nomeCheiro(id))}</b><span>${esc(linhaCheiro(id))}</span></li>`).join('') || `<li class="vazio">${esc(U('narizVazio'))}</li>`;
   m.classList.add('show'); A.fareja();
 }
 $('#narizBtn').onclick = abrirNariz;
@@ -429,14 +432,17 @@ const umObj = (x) => {
 };
 const resolve = (list) => [].concat(typeof list === 'function' ? list(st) : (list || [])).map(umObj).flat();
 const sub = (s) => (L.subst ? L.subst(s, st, tr) : s);
-const paras = (list) => resolve(list).map((o) => sub(tr(o.t)));
+const paras = (list) => resolve(list).map((o) => (o.quem ? '\u0001' + o.quem + '\u0002' : '') + sub(tr(o.t)));
 // os sons presos aos parágrafos, com o índice certo
-const itensDe = (objs, base = 0) => objs.map((o, k) => [o.voz ? { voz: o.voz, p: base + k } : null, o.sfx ? { sfx: o.sfx, p: base + k, v: o.v } : null, o.cheiro ? { cheiro: o.cheiro, modo: o.modo, p: base + k, solto: true } : null]).flat().filter(Boolean);
+const itensDe = (objs, base = 0) => objs.map((o, k) => [o.voz ? { voz: o.voz, p: base + k } : null, o.sfx ? { sfx: o.sfx, p: base + k, v: o.v } : null, o.cheiro ? { cheiro: o.cheiro, modo: o.modo, p: base + k, solto: true } : null, o.cala != null ? { cala: o.cala, p: base + k, solto: true } : null]).flat().filter(Boolean);
 // '§' abre uma linha da barriga (CAPS âmbar); '—' abre uma fala
 function pHTML(p, extra = '') {
+  let quem = '';
+  if (p.charCodeAt(0) === 1) { const k = p.indexOf('\u0002'), f = L.falante && L.falante(p.slice(1, k), st); p = p.slice(k + 1);
+    if (f) quem = `<span class="quem">${f.rosto ? rostoHTML('assets/images/rostos/' + f.rosto + '.jpg', 'rosto qm') : ''}<b>${esc(f.nome)}</b></span>`; }
   if (p.startsWith('§')) return `<p class="barriga ${extra}">${esc(p.slice(1).trim())}</p>`;
   const dlg = p.startsWith('—'), kronk = dlg && p === p.toUpperCase() && /[A-ZÀ-Ú]/.test(p);
-  return `<p class="${dlg ? 'dlg' : ''} ${kronk ? 'kfala' : ''} ${extra}">${linkify(p)}</p>`;
+  return `<p class="${dlg ? 'dlg' : ''} ${kronk ? 'kfala' : ''} ${quem ? 'com-quem' : ''} ${extra}">${quem}${linkify(p)}</p>`;
 }
 let timers = [];
 const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -448,6 +454,7 @@ const palavras = (el) => (el.textContent || '').trim().split(/\s+/).length;
 const msAte = (els, k) => { if (!els.length) return 900; if (k < 0) k = els.length + k; k = Math.max(0, Math.min(els.length - 1, k)); let w = 0; for (let i = 0; i < k; i++) w += palavras(els[i]); return (700 + (w / 3.3) * 1000) * (window.__LEITURA_K || 1); };
 const tocaItem = (it) => {
   if (it.cheiro) return cheiro(it.cheiro, it.modo);
+  if (it.cala != null) return A.cala(it.cala);
   if (!A.ctx || !A.on) return;
   if (it.voz) A.narrate(vozUrl(typeof it.voz === 'function' ? it.voz(st) : it.voz), null, true); else if (it.fn) it.fn(A, st); else if (it.sfx) A.sfx(it.sfx, it.v != null ? it.v : .7); else if (it.s) A.once(it.s, it.v != null ? it.v : .7);
 };
@@ -506,7 +513,7 @@ function revela(els, k) {
 }
 
 function render(dir = 1) {
-  clearTimers(); cuesPend = []; revelaCues = {}; A.stopNarr(); linkUsados.clear(); limpaBarriga();
+  clearTimers(); cuesPend = []; revelaCues = {}; A.stopNarr(); linkUsados.clear(); limpaBarriga(); if (A.mudo) A.cala(false);
   if (narizFixo) { narizFixo.remove(); narizFixo = null; }
   document.body.classList.remove('apaga', 'comendo', 'olhando');
   document.documentElement.style.setProperty('--calor', '0');
@@ -524,7 +531,7 @@ function render(dir = 1) {
   panel.classList.toggle('cartao', !!p.cartao);
   if (p.cartao) {
     const c = p.cartao;
-    txt.innerHTML = `<div class="ct"><p class="ct-num">${esc(tr(c.num))}</p><h2 class="ct-nome">${esc(tr(c.nome))}</h2><span class="ct-orn">✦</span>
+    txt.innerHTML = `<div class="ct"><p class="ct-num">${esc(tr(c.num))}</p><h2 class="ct-nome">${esc(tr(c.nome))}</h2><span class="ct-orn">✦</span>${c.linha ? `<p class="ct-linha">${esc(tr(c.linha))}</p>` : ''}
       ${c.epigrafe ? `<blockquote class="ct-epi"><p>${esc(tr(c.epigrafe))}</p><cite>${esc(tr(c.fonte))}</cite></blockquote>` : ''}</div>`;
   } else txt.innerHTML = paras(p.texto).map((t, k) => pHTML(t, k === 0 && p.capitular ? 'cap' : '')).join('');
   const sonsPag = (p.cartao ? [] : itensDe(resolve(p.texto))).concat((p.sons || []).filter((it) => !(it.se && !it.se(st))));

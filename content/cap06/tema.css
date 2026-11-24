@@ -464,3 +464,10 @@ body.mg-fome #mg .j6-bg { filter: saturate(calc(1 - var(--fome) * .9)); }
 .fr-ar i.on { background: #e8d6b4; }
 .fr-ar.pouco i.on { background: #e07a4a; animation: arPisca 1s ease-in-out infinite; }
 @keyframes arPisca { 50% { transform: scale(1.25); } }
+
+/* L1 · quem fala: rosto pequeno e nome antes do travessão */
+.quem { display: inline-flex; align-items: center; gap: 7px; margin-right: 9px; vertical-align: -6px; }
+.quem b { font-family: var(--serif-d); font-weight: 400; font-size: .72em; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+.rosto.qm { width: 26px; height: 26px; border-width: 1px; }
+/* L2 · a linha do narrador no cartão da idade */
+.ct-linha { font-style: italic; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.55; color: var(--frost); max-width: 28em; margin: 0 auto !important; text-align: center !important; text-indent: 0 !important; }

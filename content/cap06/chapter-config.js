@@ -71,10 +71,10 @@ window.CHAPTER_CONFIG = {
       image: 'assets/images/acampamento.jpg',
       aliasesEn: ['Wandering Pyre', 'Pyre'], aliasesPt: ['Pira Errante', 'Pira'],
       en: { title: 'The Wandering Pyre', eyebrow: 'The moving court of the Grakh', pages: [
-        ['The Wandering Pyre is the gathering of the Grakh hordes around their greatest leader. It has no fixed place: it is raised wherever that leader makes camp, with shelters of bone and hide, and taken down when the hordes move on.'],
+        ['The Wandering Pyre is the gathering of the Grakh hordes around their strongest leader. It has no fixed place: it is raised wherever that leader makes camp, with shelters of bone and hide, and taken down when the hordes move on.'],
       ] },
       pt: { title: 'A Pira Errante', eyebrow: 'A corte móvel dos Grakh', pages: [
-        ['A Pira Errante é a reunião das hordas Grakh em volta do seu maior líder. Não tem lugar fixo: é erguida onde esse líder acampa, com abrigos de osso e couro, e desmontada quando as hordas seguem.'],
+        ['A Pira Errante é a reunião das hordas Grakh em volta do seu líder mais forte. Não tem lugar fixo: é erguida onde esse líder acampa, com abrigos de osso e couro, e desmontada quando as hordas seguem.'],
       ] },
     },
 
@@ -91,15 +91,29 @@ window.CHAPTER_CONFIG = {
       ] },
     },
 
+    // L3 · a fala dos Grakh: o mini dicionário, ligado na primeira vez que aparece "Ferro andar" (k2a)
+    fala: {
+      image: 'assets/images/k5-morro.jpg',
+      aliasesEn: ['Iron walk'], aliasesPt: ['Ferro andar'],
+      en: { title: 'The Speech of the Grakh', eyebrow: 'The tongue of men, in their mouths', pages: [
+        ['The Grakh speak the common tongue of men without conjugating the verb and call themselves by name. They give things the name of what they do, the sound they make or the smell they have.'],
+        ['Iron: the soldiers of Redom, for their plate. Big ones and small ones: adults and children. Dry season: a year, from one dry season to the next. Cub: a young one. Not: no.'],
+      ] },
+      pt: { title: 'A fala dos Grakh', eyebrow: 'A língua dos homens, na boca deles', pages: [
+        ['Os Grakh falam a língua comum dos homens sem conjugar o verbo e se chamam pelo nome. Dão às coisas o nome do que elas fazem, do som que fazem ou do cheiro que têm.'],
+        ['Ferro: os soldados de Redom, pelas placas. Grande e pequeno: adultos e crianças. Seca: um ano, de uma estação seca à outra. Cria: filhote. Num: não.'],
+      ] },
+    },
+
     eclipse: {
       image: 'assets/images/codex-eclipse.jpg',
       aliasesEn: ['eaten day', 'Day eaten', 'day be eaten'], aliasesPt: ['dia comido', 'Dia comido', 'dia ser comido'],
       en: { title: 'The Eaten Day', eyebrow: 'What the Grakh call it', pages: [
-        ['The Grakh call a day that goes dark while the sun is up an eaten day. An old saying holds that the greatest of the Grakh is born under one. The elders repeat it whenever the moon fails to appear for two nights in a row.'],
+        ['The Grakh call a day that goes dark while the sun is up an eaten day. An old saying holds that the Biggest of the Grakh is born under one. The elders repeat it whenever the moon fails to appear for two nights in a row.'],
         ['The Lúmae recorded these events in tables. They knew that the moon’s path crosses the sun’s, and calculated, generations in advance and to the minute, where and when the shadow would fall. Total darkness does not last more than a few minutes.', 'The tables were lost in the Dimming of the Lights.'],
       ] },
       pt: { title: 'O Dia Comido', eyebrow: 'Como os Grakh o chamam', pages: [
-        ['Os Grakh chamam de dia comido o dia que escurece com o sol no céu. Um dito antigo afirma que o maior dos Grakh nasce sob um deles. Os velhos o repetem sempre que a lua falta por duas noites seguidas.'],
+        ['Os Grakh chamam de dia comido o dia que escurece com o sol no céu. Um dito antigo afirma que o Maior dos Grakh nasce sob um deles. Os velhos o repetem sempre que a lua falta por duas noites seguidas.'],
         ['Os Lúmae registravam esses eventos em tabelas. Sabiam que o caminho da lua cruza o do sol e calculavam, com gerações de antecedência e até o minuto, onde e quando a sombra cairia. A escuridão total não dura mais do que alguns minutos.', 'As tabelas se perderam no Apagar das Luzes.'],
       ] },
     },
