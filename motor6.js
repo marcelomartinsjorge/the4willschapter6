@@ -345,6 +345,9 @@ addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') ptr = { 
 
 // ---------------------------------------------------------------- ícones de gesto
 const GESTO = {
+  // v6.10: a mão da contagem e o nariz do Cheirar
+  mao: '<svg viewBox="0 0 24 24"><path d="M7 21c-1.6-1.6-3-3.9-3-6.4V9.5a1.3 1.3 0 0 1 2.6 0V13h.6V5.2a1.3 1.3 0 0 1 2.6 0V12h.6V3.8a1.3 1.3 0 0 1 2.6 0V12h.6V5.2a1.3 1.3 0 0 1 2.6 0V13.6c0 3-.9 5.4-2.6 7.4z"/></svg>',
+  nariz: '<svg viewBox="0 0 24 24"><path d="M12 3c-.6 3.5-2.2 7.4-4.4 10.6-1 1.5-.5 3.6 1.2 4.2.8.3 1.6 0 2.2-.6.4.9 1.1 1.4 2 1.4s1.6-.5 2-1.4c.6.6 1.4.9 2.2.6 1.7-.6 2.2-2.7 1.2-4.2C16.2 10.4 14.6 6.5 14 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   segurar: '<svg viewBox="0 0 64 64"><circle class="anel" cx="26" cy="14" r="11"/><g transform="translate(13 20) scale(1.6)"><path d="M10 9.5V4a2 2 0 0 0-4 0v10"/><path d="M10 9a2 2 0 0 1 4 0v1"/><path d="M14 10a2 2 0 0 1 4 0v1"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-6-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.83L6 14"/></g></svg>',
   tocar: '<svg viewBox="0 0 64 64"><circle class="onda" cx="26" cy="14" r="7"/><g transform="translate(13 20) scale(1.6)"><path d="M10 9.5V4a2 2 0 0 0-4 0v10"/><path d="M10 9a2 2 0 0 1 4 0v1"/><path d="M14 10a2 2 0 0 1 4 0v1"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-6-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.83L6 14"/></g></svg>',
   nariz: '<svg viewBox="0 0 64 64"><path d="M30 8c-2 10-8 20-12 28-3 6 0 12 7 12 3 0 5-2 7-2s4 2 7 2c7 0 10-6 7-12"/><path class="fio" d="M8 22c6-4 10 4 16 0M40 18c6-4 10 4 16 0M44 30c5-3 8 3 13 0"/></svg>',
@@ -432,17 +435,22 @@ const umObj = (x) => {
 };
 const resolve = (list) => [].concat(typeof list === 'function' ? list(st) : (list || [])).map(umObj).flat();
 const sub = (s) => (L.subst ? L.subst(s, st, tr) : s);
-const paras = (list) => resolve(list).map((o) => (o.quem ? '\u0001' + o.quem + '\u0002' : '') + sub(tr(o.t)));
+const paras = (list) => resolve(list).map((o) => (o.quem ? '\u0001' + o.quem + '\u0002' : '') + (o.homem ? '\u0003' + o.homem.join('|') + '\u0004' : '') + sub(tr(o.t)) + (o.maos ? '\u0005' + o.maos : ''));
 // os sons presos aos parágrafos, com o índice certo
-const itensDe = (objs, base = 0) => objs.map((o, k) => [o.voz ? { voz: o.voz, p: base + k } : null, o.sfx ? { sfx: o.sfx, p: base + k, v: o.v } : null, o.cheiro ? { cheiro: o.cheiro, modo: o.modo, p: base + k, solto: true } : null, o.cala != null ? { cala: o.cala, p: base + k, solto: true } : null]).flat().filter(Boolean);
+const itensDe = (objs, base = 0) => objs.map((o, k) => [o.voz ? { voz: o.voz, p: base + k } : null, o.sfx ? { sfx: o.sfx, p: base + k, v: o.v } : null, o.cheiro ? { cheiro: o.cheiro, modo: o.modo, p: base + k, solto: true } : null, o.cala != null ? { cala: o.cala, p: base + k, solto: true } : null, o.sente ? { sente: o.sente, p: base + k, solto: o.sente === 'dar' } : null]).flat().filter(Boolean);
 // '§' abre uma linha da barriga (CAPS âmbar); '—' abre uma fala
 function pHTML(p, extra = '') {
   let quem = '';
   if (p.charCodeAt(0) === 1) { const k = p.indexOf('\u0002'), f = L.falante && L.falante(p.slice(1, k), st); p = p.slice(k + 1);
     if (f) quem = `<span class="quem">${f.rosto ? rostoHTML('assets/images/rostos/' + f.rosto + '.jpg', 'rosto qm') : ''}<b>${esc(f.nome)}</b></span>`; }
+  // v6.10 · H5: as mãos da contagem; T8: a língua dos homens, que o Kronk ouve como som
+  let maos = 0; const mi = p.indexOf('\u0005'); if (mi >= 0) { maos = +p.slice(mi + 1) || 0; p = p.slice(0, mi); }
+  let hom = null; if (p.charCodeAt(0) === 3) { const k = p.indexOf('\u0004'); hom = p.slice(1, k).split('|').map((w) => w.toLowerCase()); p = p.slice(k + 1); }
+  const maosH = maos ? `<span class="maos">${Array.from({ length: maos }, (_, i) => `<i style="animation-delay:${(.6 + i * .35).toFixed(2)}s">${GESTO.mao || ''}</i>`).join('')}</span>` : '';
   if (p.startsWith('§')) return `<p class="barriga ${extra}">${esc(p.slice(1).trim())}</p>`;
   const dlg = p.startsWith('—'), kronk = dlg && p === p.toUpperCase() && /[A-ZÀ-Ú]/.test(p);
-  return `<p class="${dlg ? 'dlg' : ''} ${kronk ? 'kfala' : ''} ${quem ? 'com-quem' : ''} ${extra}">${quem}${linkify(p)}</p>`;
+  const corpo = hom ? p.split(/(\s+)/).map((w) => { if (/^\s+$/.test(w) || w === '—') return w; const limpo = w.replace(/[.,;:!?“”"'’]/g, '').toLowerCase(); return hom.includes(limpo) ? `<b class="som-ok">${esc(w)}</b>` : `<span class="som">${esc(w)}</span>`; }).join('') : linkify(p);
+  return `<p class="${dlg ? 'dlg' : ''} ${kronk ? 'kfala' : ''} ${quem ? 'com-quem' : ''} ${hom ? 'homem' : ''} ${extra}">${quem}${corpo}${maosH}</p>`;
 }
 let timers = [];
 const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -452,8 +460,17 @@ const fala = (nome, ms = 0) => { if (!nome) return; later(() => { if (A.ctx && A
 let cuesPend = [];
 const palavras = (el) => (el.textContent || '').trim().split(/\s+/).length;
 const msAte = (els, k) => { if (!els.length) return 900; if (k < 0) k = els.length + k; k = Math.max(0, Math.min(els.length - 1, k)); let w = 0; for (let i = 0; i < k; i++) w += palavras(els[i]); return (700 + (w / 3.3) * 1000) * (window.__LEITURA_K || 1); };
+// v6.10 · H2: a cor de cada cheiro que o Kronk lê nos outros (medo, dormir, sangue, mão que dar)
+const SENTE_SOM = { medo: 'suor-frio', dormir: 'dormir', sangue: 'pulso' };
+const senteEl = (() => { const e = document.createElement('div'); e.id = 'sente'; document.body.appendChild(e); return e; })();
+function sente(tipo) {
+  senteEl.className = ''; void senteEl.offsetWidth; senteEl.className = 's-' + tipo;
+  clearTimeout(sente.t); sente.t = setTimeout(() => { senteEl.className = ''; }, tipo === 'dormir' ? 2400 : 1700);
+  if (SENTE_SOM[tipo] && A.ctx && A.on) A.sfx(SENTE_SOM[tipo], tipo === 'dormir' ? .5 : .6);
+}
 const tocaItem = (it) => {
   if (it.cheiro) return cheiro(it.cheiro, it.modo);
+  if (it.sente) return sente(it.sente);
   if (it.cala != null) return A.cala(it.cala);
   if (!A.ctx || !A.on) return;
   if (it.voz) A.narrate(vozUrl(typeof it.voz === 'function' ? it.voz(st) : it.voz), null, true); else if (it.fn) it.fn(A, st); else if (it.sfx) A.sfx(it.sfx, it.v != null ? it.v : .7); else if (it.s) A.once(it.s, it.v != null ? it.v : .7);
@@ -635,7 +652,8 @@ const rotHTML = (o) => (o.silencio ? `<em>${U('silencio')}</em>` : o.fala ? `“
 const optHTML = (o, k) => `<button class="opt ${o.silencio ? 'sil' : ''} ${o.fala ? 'fala' : ''} ${o.barriga ? 'barr' : ''}" data-id="${o.id}"><span class="k">${k + 1}</span><span class="tx">${rotHTML(o)}</span></button>`;
 function renderEscolha(p) {
   const e = p.escolha, feita = st.escolhas[e.id];
-  if (feita) { const o = e.opcoes.find((x) => x.id === feita); if (o) { box.innerHTML = `<p class="feita">${U('escolheu')} ${o.fala ? '“' + esc(rotulo(o)) + '”' : esc(rotulo(o))}</p>`; appendParas(resultadoDe(o)); } return true; }
+  if (feita && e.cheirar && st.feitos['ch:' + e.id]) appendParas([typeof e.cheirar === 'function' ? e.cheirar(st) : e.cheirar], 'cheirou');
+  if (feita) { const o = e.opcoes.find((x) => x.id === feita && (!x.se || x.se(st))) || e.opcoes.find((x) => x.id === feita); if (o) { box.innerHTML = `<p class="feita">${U('escolheu')} ${o.fala ? '“' + esc(rotulo(o)) + '”' : esc(rotulo(o))}</p>`; appendParas(resultadoDe(o)); } return true; }
   p._revelado = false; box.innerHTML = '';
   return true;
 }
@@ -644,6 +662,17 @@ function abreEscolha(p) {
   const barr = fomeOn() ? ops.filter((o) => o.barriga) : [], resto = ops.filter((o) => !barr.includes(o));
   box.innerHTML = `<p class="eyebrow">${e.pergunta ? esc(sub(tr(typeof e.pergunta === 'function' ? e.pergunta(st) : e.pergunta))) : U('oque')}</p>` + resto.map(optHTML).join('');
   box.querySelectorAll('.opt').forEach((b) => b.onclick = () => escolher(p, b.dataset.id));
+  // v6.10 · T5: cheirar antes de responder (uma vez; não abre nem fecha opção)
+  if (e.cheirar && !st.feitos['ch:' + e.id]) {
+    const nb = document.createElement('button'); nb.type = 'button'; nb.className = 'opt-cheirar'; nb.innerHTML = `<span class="nz">${GESTO.nariz || ''}</span>${esc(U('cheirar'))}`;
+    nb.onclick = () => {
+      if (st.feitos['ch:' + e.id]) return; st.feitos['ch:' + e.id] = 1; salvar();
+      if (A.ctx && A.on) A.sfx('cheirar', .85);
+      nb.classList.add('sai'); setTimeout(() => nb.remove(), 350);
+      later(() => { appendParas([typeof e.cheirar === 'function' ? e.cheirar(st) : e.cheirar], 'cheirou'); if (e.cheirarSente) sente(e.cheirarSente); }, 650);
+    };
+    box.querySelector('.eyebrow').after(nb);
+  }
   // a barriga: a opção dela nasce embaixo do dedo (celular) ou vem deslizando até o mouse (PC), e quem resiste paga
   const toque = matchMedia('(pointer: coarse)').matches, forte = fomeOn() && st.fome >= 50;
   if (barr.length && forte && !toque) box.classList.add('barr-forte');
@@ -687,12 +716,12 @@ function aplicar(o) {
   if (o.fome) mudaFome(typeof o.fome === 'function' ? o.fome(st) : o.fome);
   if (o.flag) [].concat(o.flag).forEach((f) => { st.f[f] = true; });
   if (o.aoEscolher) o.aoEscolher(st);
-  const av = typeof o.aviso === 'function' ? o.aviso(st) : o.aviso;
+  const av = typeof o.aviso === 'function' ? o.aviso(st, o) : o.aviso;
   if (av) later(() => toast(sub(tr(av))), 700);
 }
 function escolher(p, id) {
   const e = p.escolha; if (st.escolhas[e.id]) return;
-  const o = e.opcoes.find((x) => x.id === id); st.escolhas[e.id] = id;
+  const o = e.opcoes.find((x) => x.id === id && (!x.se || x.se(st))) || e.opcoes.find((x) => x.id === id); st.escolhas[e.id] = id;
   const fo = typeof o.fundo === 'function' ? o.fundo(st) : o.fundo;
   if (fo) { (st.fundoPag = st.fundoPag || {})[p.id] = fo; setFundo(fo); }
   limpaBarriga();
@@ -742,7 +771,7 @@ function renderMinijogo(p) {
     const fn = tipo === 'batalha' ? window.BATALHA6 : window.JOGOS6[tipo];
     Promise.resolve(fn(o, ctxJogo(p))).then((res) => {
       st.jogos[p.jogoId || tipo] = res || true; st.feitos['mg:' + p.id] = 1; salvar(); fechaOverlay();
-      if (p.aoTerminar) p.aoTerminar(st, res, { mudaFome, cheiro, toast: (t) => later(() => toast(tr(t)), 400) });
+      if (p.aoTerminar) p.aoTerminar(st, res, { mudaFome, cheiro, toast: (t) => later(() => toast(sub(tr(t))), 400) });
       salvar();
       if (res && res.nav) return irProxima();
       appendComSom(p.depois, p.sonsDepois, () => setNext(true));
